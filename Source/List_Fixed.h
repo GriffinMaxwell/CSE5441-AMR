@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include "I_List.h"
 
-typdef struct
+typedef struct
 {
    I_List_t interface;
 

@@ -14,22 +14,22 @@ typedef struct
     * Add an item to the back of the list
     * @param item: The item to add to the list
     */
-   void (*Add)(void *item);
+   void (*Add)(I_List_t *context, void *item);
 
    /*
     * Gets the item in the list at the given index
     * @param index: The index of the item in the list
     */
-    void * (*Get)(uint32_t index);
+    void * (*Get)(I_List_t *context, uint32_t index);
 } I_List_t;
 
 /*
  * Interface function call macros
  */
 #define List_Add(instance, item) \
-   (instance)->Add((item))
+   (instance)->Add((instance), (item))
 
 #define List_Get(instance, index) \
-   (instance)->Get((index))
+   (instance)->Get((instance), (index))
 
 #endif
