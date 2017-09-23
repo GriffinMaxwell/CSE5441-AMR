@@ -14,7 +14,7 @@ static void * CalculateItemAddress(List_Fixed_t *instance, uint32_t index)
    return &bytes[instance->size * index];
 }
 
-static void AddItem(I_List_t *context, void *item)
+static void AddItem(void *context, void *item)
 {
    REINTERPRET(instance, context, List_Fixed_t *);
 
@@ -22,7 +22,7 @@ static void AddItem(I_List_t *context, void *item)
    instance->currentLength++;
 }
 
-static void * GetItem(I_List_t *context, uint32_t index)
+static void * GetItem(void *context, uint32_t index)
 {
    REINTERPRET(instance, context, List_Fixed_t *);
 

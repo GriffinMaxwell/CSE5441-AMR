@@ -14,13 +14,13 @@ typedef struct
     * Add an item to the back of the list
     * @param item: The item to add to the list
     */
-   void (*Add)(I_List_t *context, void *item);
+   void (*Add)(void *context, void *item);
 
    /*
     * Gets the item in the list at the given index
     * @param index: The index of the item in the list
     */
-    void * (*Get)(I_List_t *context, uint32_t index);
+    void * (*Get)(void *context, uint32_t index);
 } I_List_t;
 
 /*
