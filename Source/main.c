@@ -20,5 +20,7 @@ int main(int argc, char *argv[])
 
    // display stats
 
+   // Deinitialize objects
+
    return 0;
 }

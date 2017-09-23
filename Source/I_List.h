@@ -6,6 +6,8 @@
 #ifndef I_LIST_H
 #define I_LIST_H
 
+#include <stdint.h>
+
 typedef struct
 {
    /*
@@ -18,7 +20,7 @@ typedef struct
     * Gets the item in the list at the given index
     * @param index: The index of the item in the list
     */
-    void * (*Get)(int index);
+    void * (*Get)(uint32_t index);
 } I_List_t;
 
 /*
