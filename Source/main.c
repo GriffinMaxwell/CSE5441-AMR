@@ -1,8 +1,24 @@
 #include <stdio.h>
 
-int main()
+int main(int argc, char *argv[])
 {
-   printf("This is a test: %d\n", testFunc());
+   // Read command line args
+   // Read first line of stdin for # boxes and grid size
+
+   // Initialize objs.
+
+   // Read in input grid
+
+   // start timers
+   // convergence loop:
+   //    iterate over boxes
+   //       calculate new DSV
+   //       track min/max
+   //    iterate over boxes
+   //       commit new DSVs
+   // stop timers
+
+   // display stats
 
    return 0;
 }
