@@ -53,6 +53,6 @@ void Map_Box_Deinit(Map_Box_t *instance)
    	List_Fixed_Deinit(&instance->boxes[id].neighborIds.right);
    }
 
-   free(instance->ids)
+   free(instance->ids);
    free(instance->boxes);
 }
