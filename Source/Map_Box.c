@@ -23,11 +23,11 @@ static void * FindEntry(void *context, int key)
    REINTERPRET(instance, context, Map_Box_t *);
 
    uint32_t index;
-   for(index = 0; index < currentLength; i++)
+   for(index = 0; index < currentLength; index++)
    {
-      if(key == instance->ids[i])
+      if(key == instance->ids[index])
       {
-         return boxes[i];
+         return boxes[index];
       }
    }
 }

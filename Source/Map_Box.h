@@ -28,6 +28,6 @@ void Map_Box_Init(Map_Box_t *instance, uint32_t length);
 /*
  * Deinitialize a Map_Box
  */
-void Map_Box_Init(Map_Box_t *instance);
+void Map_Box_Deinit(Map_Box_t *instance);
 
 #endif
