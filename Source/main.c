@@ -15,13 +15,13 @@ int main(int argc, char *argv[])
    double affectRate;
    double epsilon;
    sscanf(argv[1], "%lf", &affectRate);
-   sscanf(argv[2], "%lf", &episilon);
+   sscanf(argv[2], "%lf", &epsilon);
 
    // Read first line of stdin for # boxes and grid size
    int numBoxes;
    int numGridRows;
    int numGridCols;
-   fscanf(stdin, "%d %d %d", &numBoxes, numGridRows, numGridCols);
+   fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
    // Initialize objs.
    Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
       Box_t box;
       FormattedReader_Read(&boxReader.interface, &box);
 
-      Map_Add(&mapIdToBox, id, &box);
+      Map_Add(&mapIdToBox.interface, id, &box);
    }
 
    // start timers
@@ -54,6 +54,11 @@ int main(int argc, char *argv[])
    // stop timers
 
    // display stats
+	printf("AFFECT_RATE: %lf\n", affectRate);
+	printf("EPSILON: %lf\n", epsilon);
+	printf("num boxes: %d\n", numBoxes);
+	printf("num rows: %d\n", numGridRows);
+	printf("num cols: %d\n", numGridCols);
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);

@@ -10,7 +10,7 @@
 #include "I_Map.h"
 #include "Box.h"
 
-typdef struct
+typedef struct
 {
    I_Map_t interface;
 

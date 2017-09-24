@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include "I_FormattedReader.h"
 
-typdef struct
+typedef struct
 {
    I_FormattedReader_t interface;
 
