@@ -41,9 +41,9 @@ void List_Fixed_Init(List_Fixed_t *instance, uint32_t length, size_t size)
    instance->currentLength = 0;
 }
 
-size_t List_Fixed_Length(List_Fixed_t *instance)
+uint32_t List_Fixed_CurrentLength(List_Fixed_t *instance)
 {
-   return instance->length;
+   return instance->currentLength;
 }
 
 void List_Fixed_Deinit(List_Fixed_t *instance)

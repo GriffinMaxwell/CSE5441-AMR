@@ -11,9 +11,11 @@ static void AddEntry(void *context, int key, void *value)
 {
    REINTERPRET(instance, context, Map_Box_t *);
 
-   instance->ids[instance->currentLength] = key;
-   memcpy(&instance->boxes[instance->currentLength], value, sizeof(Box_t));
+   // store keys to know which boxes are valid and can be freed on deinit
+   instance->ids[currentLength] = key;
    instance->currentLength++;
+
+   memcpy(&instance->boxes[key], value, sizeof(Box_t));
 }
 
 /*
@@ -23,16 +25,7 @@ static void * FindEntry(void *context, int key)
 {
    REINTERPRET(instance, context, Map_Box_t *);
 
-   uint32_t index;
-   for(index = 0; index < instance->currentLength; index++)
-   {
-      if(key == instance->ids[index])
-      {
-         return &instance->boxes[index];
-      }
-   }
-   
-   return NULL;
+   return (key < instance->length) ? &instance->box[key] : NULL;
 }
 
 void Map_Box_Init(Map_Box_t *instance, uint32_t length)
@@ -43,20 +36,23 @@ void Map_Box_Init(Map_Box_t *instance, uint32_t length)
    instance->ids = calloc((size_t)length, sizeof(int));
    instance->boxes = calloc((size_t)length, sizeof(Box_t));
 
+   instance->length = length;
    instance->currentLength = 0;
 }
 
 void Map_Box_Deinit(Map_Box_t *instance)
-{   
-   int index;
-   for(index = 0; index < instance->currentLength; index++)
+{
+   // First deinitialize the lists of neighbor IDs inside the boxes
+   uint32_t idsIndex;
+   for(idsIndex = 0; idsIndex < instance->currentLength; idsIndex++)
    {
-   	List_Fixed_Deinit(&instance->boxes[index].neighborIds.top);
-   	List_Fixed_Deinit(&instance->boxes[index].neighborIds.bottom);
-   	List_Fixed_Deinit(&instance->boxes[index].neighborIds.left);
-   	List_Fixed_Deinit(&instance->boxes[index].neighborIds.right);
+      int id = ids[idsIndex];
+   	List_Fixed_Deinit(&instance->boxes[id].neighborIds.top);
+   	List_Fixed_Deinit(&instance->boxes[id].neighborIds.bottom);
+   	List_Fixed_Deinit(&instance->boxes[id].neighborIds.left);
+   	List_Fixed_Deinit(&instance->boxes[id].neighborIds.right);
    }
-   
-   free(instance->ids);
+
+   free(instance->ids)
    free(instance->boxes);
 }

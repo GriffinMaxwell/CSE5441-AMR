@@ -1,6 +1,7 @@
 /***
  * File: Map_Box.h
  * Desc: I_Map implementation where a key is an ID that maps to a Box_t
+         Note: the IDs must be 0 <= ID < length
  */
 
 #ifndef MAP_BOX_H
@@ -16,6 +17,7 @@ typedef struct
 
    int *ids;
    Box_t *boxes;
+   uint32_t length;
    uint32_t currentLength;
 } Map_Box_t;
 
@@ -26,7 +28,7 @@ typedef struct
 void Map_Box_Init(Map_Box_t *instance, uint32_t length);
 
 /*
- * Deinitialize a Map_Box
+ * Deinitialize a Map_Box and the contents of its boxes
  */
 void Map_Box_Deinit(Map_Box_t *instance);
 
