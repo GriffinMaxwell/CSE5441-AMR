@@ -21,7 +21,7 @@ static void ReadBoxPositions(FormattedReader_Box_t *instance, Box_t *box)
 static void ReadBoxNeighborIds(FormattedReader_Box_t *instance, List_Fixed_t *neighborIds)
 {
    uint32_t numNeighbors;
-   fscanf("%u", &numNeighbors);
+   fscanf(instance->input, "%u", &numNeighbors);
 
    List_Fixed_Init(neighborIds, numNeighbors, sizeof(int));
 
@@ -29,7 +29,7 @@ static void ReadBoxNeighborIds(FormattedReader_Box_t *instance, List_Fixed_t *ne
    for(index = 0; index < numNeighbors; index++)
    {
       int id;
-      fscanf(instance->input, "%d", &id)
+      fscanf(instance->input, "%d", &id);
 
       List_Add(&neighborIds->interface, &id);
    }
@@ -46,13 +46,11 @@ static void ReadBox(void *context, void *storage)
    REINTERPRET(box, storage, Box_t *);
 
    ReadBoxPositions(instance, box);
-   ReadNeighborIds(instance, &box->neighborIds.top);
-   ReadNeighborIds(instance, &box->neighborIds.bottom);
-   ReadNeighborIds(instance, &box->neighborIds.left);
-   ReadNeighborIds(instance, &box->neighborIds.right);
-
-)
-
+   ReadBoxNeighborIds(instance, &box->neighborIds.top);
+   ReadBoxNeighborIds(instance, &box->neighborIds.bottom);
+   ReadBoxNeighborIds(instance, &box->neighborIds.left);
+   ReadBoxNeighborIds(instance, &box->neighborIds.right);
+   ReadBoxTemperature(instance, box);
 }
 
 void FormattedReader_Box_Init(FormattedReader_Box_t *instance, FILE *input)
