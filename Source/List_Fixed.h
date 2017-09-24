@@ -27,8 +27,8 @@ typedef struct
 void List_Fixed_Init(List_Fixed_t *instance, uint32_t length, size_t size);
 
 /*
- * Get the number of items in a List_Fixed
- * @return int: The max number of items that can fit in the list
+ * Get the maximum number of items that can fit into a List_Fixed
+ * @return size_t: The length
  */
 size_t List_Fixed_Length(List_Fixed_t *instance);
 

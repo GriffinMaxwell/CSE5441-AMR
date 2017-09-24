@@ -19,6 +19,7 @@ typedef struct
    /*
     * Gets the item in the list at the given index
     * @param index: The index of the item in the list
+    * @return void *: pointer to the item 
     */
     void * (*Get)(void *context, uint32_t index);
 } I_List_t;
