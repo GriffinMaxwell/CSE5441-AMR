@@ -21,5 +21,5 @@ typedef struct
  */
 #define FormattedReader_Read(instance, storage) \
    (instance)->Read((instance), (storage))
-   
+
 #endif
