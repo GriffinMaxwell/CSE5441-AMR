@@ -43,10 +43,10 @@ void Map_Box_Init(Map_Box_t *instance, uint32_t length)
 void Map_Box_Deinit(Map_Box_t *instance)
 {
    // First deinitialize the lists of neighbor IDs inside the boxes
-   uint32_t idsIndex;
-   for(idsIndex = 0; idsIndex < instance->currentLength; idsIndex++)
+   uint32_t i;
+   for(i = 0; i < instance->currentLength; i++)
    {
-      int id = ids[idsIndex];
+      int id = ids[i];
    	List_Fixed_Deinit(&instance->boxes[id].neighborIds.top);
    	List_Fixed_Deinit(&instance->boxes[id].neighborIds.bottom);
    	List_Fixed_Deinit(&instance->boxes[id].neighborIds.left);
