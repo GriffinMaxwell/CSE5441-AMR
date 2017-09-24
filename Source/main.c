@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
    // Initialize objs.
 
    // Read in input grid
+      // Read id
+      // Read box
+      // Store in map
 
    // start timers
    // convergence loop:

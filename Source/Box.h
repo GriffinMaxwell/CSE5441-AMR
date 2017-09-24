@@ -11,11 +11,13 @@
 typedef struct
 {
    double temperature;
-   
+
    struct
    {
       int x;
       int y;
+      int height;
+      int width;
    } position;
 
    struct
