@@ -1,3 +1,5 @@
+make clean
+
 make
 
 time ./Build/a.out 0.1 0.1 < /class/cse5441/testgrid_1
