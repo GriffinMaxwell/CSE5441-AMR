@@ -2,6 +2,7 @@
  * File: main.c
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
 #include "Map_Box.h"
@@ -20,6 +21,7 @@ static double epsilon;
 static uint32_t numBoxes;
 static uint32_t numGridRows;
 static uint32_t numGridCols;
+static uint32_t numIterations;
 
 static clock_t clockStart;
 static clock_t clockEnd;
@@ -47,7 +49,7 @@ static inline void StopTimers()
 
 static void DisplayStats()
 {
-   printf("\n\n");
+   printf("\n");
    printf("********************\n");
    printf("dissipation converged in %d iterations\n", -1);
    printf("    with max DSV = %lf and min DSV = %lf\n", -1.0, -1.0);
@@ -60,8 +62,24 @@ static void DisplayStats()
    printf("********************\n");
 }
 
-static void CalculateNewBoxTemperatures()
+static void ReadInputGrid()
 {
+   uint32_t i;
+   for(i = 0; i < numBoxes; i++)
+   {
+      int id;
+      fscanf(stdin, "%d", &id);
+
+      Box_t box;
+      FormattedReader_Read(&boxReader.interface, &box);
+
+      Map_Add(&mapIdToBox.interface, id, &box);
+   }
+}
+
+static void CalculateNewBoxTemperaturesAndCheckMinMax()
+{
+	bool firstBox = true;
 	uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
@@ -72,7 +90,20 @@ static void CalculateNewBoxTemperatures()
          List_Add(&activeIds.interface, &i);
          List_Add(&nextTemperatures.interface, &nextTemperature);
 
-         // min max
+         if(firstBox)
+         {
+         	firstBox = false;
+         	minTemperature = nextTemperature;
+         	maxTemperature = nextTemperature;
+         }
+         else if(nextTemperature < minTemperature)
+         {
+         	minTemperature = nextTemperature;
+       	}
+       	else if(nextTemperature > maxTemperature)
+       	{
+       		maxTemperature = nextTemperature;
+       	}
       }
    }
 }
@@ -105,31 +136,19 @@ int main(int argc, char *argv[])
    List_Fixed_Init(&activeIds, numBoxes, sizeof(int));
    List_Fixed_Init(&nextTemperatures, numBoxes, sizeof(double));
 
-   // Read in input grid
-   uint32_t i;
-   for(i = 0; i < numBoxes; i++)
-   {
-      // Read id
-      int id;
-      fscanf(stdin, "%d", &id);
-
-      // Read box
-      Box_t box;
-      FormattedReader_Read(&boxReader.interface, &box);
-
-      // Store in map
-      Map_Add(&mapIdToBox.interface, id, &box);
-   }
+	ReadInputGrid();
 
    StartTimers();
 
-   // convergence loop:
+	numIterations = 0;
    do {
       List_Fixed_Reset(&activeIds);
       List_Fixed_Reset(&nextTemperatures);
 
-      CalculateNewBoxTemperatures();
+      CalculateNewBoxTemperaturesAndCheckMinMax();
       CommitNewBoxTemperatures();
+      
+      numIterations++;
    } while(maxTemperature - minTemperature > epsilon);
 
    StopTimers();
