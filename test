@@ -1,5 +1,8 @@
+#!/bin/sh
+ 
 make clean
 
 make
 
+#time ./Build/amr.out 0.1 0.1 < /class/cse5441/testgrid_400_12206
 time ./Build/amr.out 0.1 0.1 < /class/cse5441/testgrid_1

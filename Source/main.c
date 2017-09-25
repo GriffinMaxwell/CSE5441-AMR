@@ -7,6 +7,8 @@
 #include "Map_Box.h"
 #include "FormattedReader_Box.h"
 
+#define NS_PER_US (1000)
+
 static Map_Box_t mapIdToBox;
 static FormattedReader_Box_t boxReader;
 static List_Fixed_t activeIds;
@@ -21,14 +23,13 @@ static uint32_t numGridCols;
 
 static clock_t clockStart;
 static clock_t clockEnd;
-static time_t timeStart
+static time_t timeStart;
 static time_t timeEnd;
 static struct timespec rtcStart;
 static struct timespec rtcEnd;
 
 static double minTemperature;
 static double maxTemperature;
-static uint32_t i;
 
 static inline void StartTimers()
 {
@@ -50,20 +51,21 @@ static void DisplayStats()
    printf("********************\n");
    printf("dissipation converged in %d iterations\n", -1);
    printf("    with max DSV = %lf and min DSV = %lf\n", -1.0, -1.0);
-   printf("    AFFECT_RATE = %lf;\t\tEPSILON = %lf\n", affectRate, epsilon);
-   printf("    Num boxes = %d;\t\t\tNum rows = %d;\t\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
+   printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
+   printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
    printf("\n");
-   printf("elaspsed convergence loop time  (clock): %d", clockEnd - clockStart);
-   printf("elaspsed convergence loop time   (time): %lf", difftime(timeEnd, timeStart));
-   printf("elaspsed convergence loop time (chrono): %lf", (double)((rtcEnd.tv_sec - rtcStart.tv_sec) * CLOCKS_PER_SECOND));
+   printf("elaspsed convergence loop time  (clock): %lf\n", clockEnd - clockStart);
+   printf("elaspsed convergence loop time   (time): %lf\n", difftime(timeEnd, timeStart));
+   printf("elaspsed convergence loop time (chrono): %lf\n", (double)(((rtcEnd.tv_sec - rtcStart.tv_sec) * CLOCKS_PER_SEC) + ((rtcEnd.tv_nsec - rtcStart.tv_nsec) / NS_PER_US)));
    printf("********************\n");
 }
 
 static void CalculateNewBoxTemperatures()
 {
+	uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
-      Box_t *box = Map_Find(&mapIdToBox, i)
+      Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
       {
          double nextTemperature;// = CaculateNewBoxTemperature();
@@ -77,12 +79,13 @@ static void CalculateNewBoxTemperatures()
 
 static void CommitNewBoxTemperatures()
 {
-   for(i = 0; i < List_Fixed_CurrentLength(instance->); i++)
+	uint32_t i;
+   for(i = 0; i < List_Fixed_CurrentLength(&activeIds); i++)
    {
       int *id = List_Get(&activeIds.interface, i);
-      double *nextTemperature = List_Get(&nextTemperatures, i);
+      double *nextTemperature = List_Get(&nextTemperatures.interface, i);
 
-      Box_t *box = Map_Find(&mapIdToBox, *id);
+      Box_t *box = Map_Find(&mapIdToBox.interface, *id);
       box->temperature = *nextTemperature;
    }
 }
@@ -99,10 +102,11 @@ int main(int argc, char *argv[])
    // Initialize objects
    Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
-   List_Fixed_Init(activeIds, numBoxes, sizeof(int));
-   List_Fixed_Init(nextTemperatures, numBoxes, sizeof(double));
+   List_Fixed_Init(&activeIds, numBoxes, sizeof(int));
+   List_Fixed_Init(&nextTemperatures, numBoxes, sizeof(double));
 
    // Read in input grid
+   uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
       // Read id
@@ -122,7 +126,7 @@ int main(int argc, char *argv[])
    // convergence loop:
    do {
       List_Fixed_Reset(&activeIds);
-      List_Fixed_Reset(&nextTemperature);
+      List_Fixed_Reset(&nextTemperatures);
 
       CalculateNewBoxTemperatures();
       CommitNewBoxTemperatures();
