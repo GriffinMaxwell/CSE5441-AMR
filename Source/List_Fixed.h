@@ -27,10 +27,15 @@ typedef struct
 void List_Fixed_Init(List_Fixed_t *instance, uint32_t length, size_t size);
 
 /*
- * Get the maximum number of items that can fit into a List_Fixed
- * @return size_t: The length
+ * Get the current number of items in a List_Fixed
+ * @return size_t: The current length
  */
-size_t List_Fixed_Length(List_Fixed_t *instance);
+uint32_t List_Fixed_CurrentLength(List_Fixed_t *instance);
+
+/*
+ * Reset a List_Fixed to its initialized state.
+ */
+void List_Fixed_Reset(List_Fixed_t *instance);
 
 /*
  * Deinitialize a List_Fixed

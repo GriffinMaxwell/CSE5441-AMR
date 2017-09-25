@@ -9,13 +9,15 @@
 
 static Map_Box_t mapIdToBox;
 static FormattedReader_Box_t boxReader;
+static List_Fixed_t activeIds;
+static List_Fixed_t nextTemperatures;
 
 static double affectRate;
 static double epsilon;
 
-static int numBoxes;
-static int numGridRows;
-static int numGridCols;
+static uint32_t numBoxes;
+static uint32_t numGridRows;
+static uint32_t numGridCols;
 
 static clock_t clockStart;
 static clock_t clockEnd;
@@ -23,6 +25,10 @@ static time_t timeStart
 static time_t timeEnd;
 static struct timespec rtcStart;
 static struct timespec rtcEnd;
+
+static double minTemperature;
+static double maxTemperature;
+static uint32_t i;
 
 static inline void StartTimers()
 {
@@ -53,12 +59,36 @@ static void DisplayStats()
    printf("********************\n");
 }
 
+static void CalculateNewBoxTemperatures()
+{
+   for(i = 0; i < numBoxes; i++)
+   {
+      Box_t *box = Map_Find(&mapIdToBox, i)
+      if(NULL != box)
+      {
+         double nextTemperature;// = CaculateNewBoxTemperature();
+         List_Add(&activeIds.interface, &i);
+         List_Add(&nextTemperatures.interface, &nextTemperature);
+
+         // min max
+      }
+   }
+}
+
+static void CommitNewBoxTemperatures()
+{
+   for(i = 0; i < List_Fixed_CurrentLength(instance->); i++)
+   {
+      int *id = List_Get(&activeIds.interface, i);
+      double *nextTemperature = List_Get(&nextTemperatures, i);
+
+      Box_t *box = Map_Find(&mapIdToBox, *id);
+      box->temperature = *nextTemperature;
+   }
+}
+
 int main(int argc, char *argv[])
 {
-   // Initialize objs.
-   Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
-   FormattedReader_Box_Init(&boxReader, stdin);
-
    // Parse command line args
    sscanf(argv[1], "%lf", &affectRate);
    sscanf(argv[2], "%lf", &epsilon);
@@ -66,9 +96,14 @@ int main(int argc, char *argv[])
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
+   // Initialize objects
+   Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
+   FormattedReader_Box_Init(&boxReader, stdin);
+   List_Fixed_Init(activeIds, numBoxes, sizeof(int));
+   List_Fixed_Init(nextTemperatures, numBoxes, sizeof(double));
+
    // Read in input grid
-   int index;
-   for(index = 0; index < numBoxes; index++)
+   for(i = 0; i < numBoxes; i++)
    {
       // Read id
       int id;
@@ -85,11 +120,13 @@ int main(int argc, char *argv[])
    StartTimers();
 
    // convergence loop:
-   //    iterate over boxes
-   //       calculate new DSV
-   //       track min/max
-   //    iterate over boxes
-   //       commit new DSVs
+   do {
+      List_Fixed_Reset(&activeIds);
+      List_Fixed_Reset(&nextTemperature);
+
+      CalculateNewBoxTemperatures();
+      CommitNewBoxTemperatures();
+   } while(maxTemperature - minTemperature > epsilon);
 
    StopTimers();
 
@@ -97,6 +134,8 @@ int main(int argc, char *argv[])
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);
+   List_Fixed_Deinit(&activeIds);
+   List_Fixed_Deinit(&nextTemperatures);
 
    return 0;
 }
