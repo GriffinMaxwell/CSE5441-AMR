@@ -21,8 +21,3 @@ OBJ = \
 
 amr: $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
-	
-.PHONY: clean
-clean:
-	@echo Cleaning build files...
-	@rm -f *.o amr
