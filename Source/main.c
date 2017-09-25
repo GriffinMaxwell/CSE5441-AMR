@@ -86,7 +86,7 @@ static void CommitNewBoxTemperatures()
       double *nextTemperature = List_Get(&nextTemperatures.interface, i);
 
       Box_t *box = Map_Find(&mapIdToBox.interface, *id);
-      box->temperature = *nextTemperature;
+      DsvUpdater_Commit(__, box, nextTemperature);
    }
 }
 

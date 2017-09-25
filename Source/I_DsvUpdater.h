@@ -9,14 +9,14 @@
 typedef struct
 {
    /*
-    * Calculates the updated DSV value as a separate piece of data.
+    * Calculates the updated DSV as a separate piece of data.
     * @param current: object that is or contains the current DSV
     * @param updated: storage for the updated DSV(s)
     */
     void (*Calculate)(void *context, void *current, void *updated);
 
     /*
-    * Calculates the updated DSV value as a separate piece of data.
+    * Commits the updated DSV to the current DSV.
     * @param current: object that is or contains the current DSV
     * @param updated: the updated DSV(s) to commit to the current
     */
