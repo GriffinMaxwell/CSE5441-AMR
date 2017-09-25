@@ -26,6 +26,8 @@ static time_t timeEnd;
 static struct timespec rtcStart;
 static struct timespec rtcEnd;
 
+static double minTemperature;
+static double maxTemperature;
 static uint32_t i;
 
 static inline void StartTimers()
@@ -55,6 +57,34 @@ static void DisplayStats()
    printf("elaspsed convergence loop time   (time): %lf", difftime(timeEnd, timeStart));
    printf("elaspsed convergence loop time (chrono): %lf", (double)((rtcEnd.tv_sec - rtcStart.tv_sec) * CLOCKS_PER_SECOND));
    printf("********************\n");
+}
+
+static void CalculateNewBoxTemperatures()
+{
+   for(i = 0; i < numBoxes; i++)
+   {
+      Box_t *box = Map_Find(&mapIdToBox, i)
+      if(NULL != box)
+      {
+         double nextTemperature;// = CaculateNewBoxTemperature();
+         List_Add(&activeIds.interface, &i);
+         List_Add(&nextTemperatures.interface, &nextTemperature);
+
+         // min max
+      }
+   }
+}
+
+static void CommitNewBoxTemperatures()
+{
+   for(i = 0; i < List_Fixed_CurrentLength(instance->); i++)
+   {
+      int *id = List_Get(&activeIds.interface, i);
+      double *nextTemperature = List_Get(&nextTemperatures, i);
+
+      Box_t *box = Map_Find(&mapIdToBox, *id);
+      box->temperature = *nextTemperature;
+   }
 }
 
 int main(int argc, char *argv[])
@@ -91,30 +121,11 @@ int main(int argc, char *argv[])
 
    // convergence loop:
    do {
+      List_Fixed_Reset(&activeIds);
+      List_Fixed_Reset(&nextTemperature);
 
-      // Calculate new temperature DSVs
-      for(i = 0; i < numBoxes; i++)
-      {
-         Box_t *box = Map_Find(&mapIdToBox, i)
-         if(NULL != box)
-         {
-            double nextTemperature;// = CaculateNewBoxTemperature();
-            List_Add(&activeIds.interface, &i);
-            List_Add(&nextTemperatures.interface, &nextTemperature);
-
-            // min max
-         }
-      }
-
-      // Commit new temperature DSVs
-      for(i = 0; i < List_Fixed_CurrentLength(instance->); i++)
-      {
-         int *id = List_Get(&activeIds.interface, i);
-         double *nextTemperature = List_Get(&nextTemperatures, i);
-
-         Box_t *box = Map_Find(&mapIdToBox, *id);
-         box->temperature = *nextTemperature;
-      }
+      CalculateNewBoxTemperatures();
+      CommitNewBoxTemperatures();
    } while(maxTemperature - minTemperature > epsilon);
 
    StopTimers();

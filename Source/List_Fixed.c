@@ -46,6 +46,11 @@ uint32_t List_Fixed_CurrentLength(List_Fixed_t *instance)
    return instance->currentLength;
 }
 
+void List_Fixed_Reinit(List_Fixed_t *instance)
+{
+   instance->currentLength = 0;
+}
+
 void List_Fixed_Deinit(List_Fixed_t *instance)
 {
    free(instance->data);

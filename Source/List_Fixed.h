@@ -33,6 +33,11 @@ void List_Fixed_Init(List_Fixed_t *instance, uint32_t length, size_t size);
 uint32_t List_Fixed_CurrentLength(List_Fixed_t *instance);
 
 /*
+ * Reset a List_Fixed to its initialized state.
+ */
+void List_Fixed_Reset(List_Fixed_t *instance);
+
+/*
  * Deinitialize a List_Fixed
  */
 void List_Fixed_Deinit(List_Fixed_t *instance);
