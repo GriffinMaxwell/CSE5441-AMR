@@ -5,7 +5,7 @@ DEPS := \
 	FormattedReader_Box.h \
 	I_FormattedReader.h \
 	I_List.h \
-	I_Map.h
+	I_Map.h \
 	List_Fixed.h \
 	Macro.h \
 	Map_Box.h \
