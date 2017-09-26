@@ -86,9 +86,8 @@ static void ReadInputGrid()
    }
 }
 
-static void CalculateNewBoxTemperaturesAndCheckMinMax()
+static void CalculateNewBoxTemperatures()
 {
-	bool firstBox = true;
 	uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
@@ -100,26 +99,11 @@ static void CalculateNewBoxTemperaturesAndCheckMinMax()
          double updatedTemperature;
 			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
 			List_Add(&updatedTemperatures.interface, &updatedTemperature);
-
-         if(firstBox)
-         {
-         	firstBox = false;
-         	minTemperature = updatedTemperature;
-         	maxTemperature = updatedTemperature;
-         }
-         else if(updatedTemperature < minTemperature)
-         {
-         	minTemperature = updatedTemperature;
-       	}
-       	else if(updatedTemperature > maxTemperature)
-       	{
-       		maxTemperature = updatedTemperature;
-       	}
       }
    }
 }
 
-static void CommitNewBoxTemperatures()
+static void CommitNewBoxTemperaturesAndFindMinMax()
 {
 	uint32_t i;
    for(i = 0; i < List_Fixed_CurrentLength(&updatedTemperatureIds); i++)
@@ -129,6 +113,17 @@ static void CommitNewBoxTemperatures()
 
       Box_t *box = Map_Find(&mapIdToBox.interface, *id);
       DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
+
+      if(i == 0)
+      {
+         minTemperature = updatedTemperature;
+         maxTemperature = updatedTemperature;
+      }
+      else
+      {
+         minTemperature = MIN(minTemperature, updatedTemperature);
+         maxTemperature = MAX(maxTemperature, updatedTemperature);
+      }
    }
 }
 
@@ -152,15 +147,16 @@ int main(int argc, char *argv[])
 
    StartTimers();
 
+   // Convergence loop
 	numIterations = 0;
    do {
+      // Reset lists so they can be refilled with new temperature data
       List_Fixed_Reset(&updatedTemperatureIds);
       List_Fixed_Reset(&updatedTemperatures);
-
-      CalculateNewBoxTemperaturesAndCheckMinMax();
-      CommitNewBoxTemperatures();
-
       numIterations++;
+
+      CalculateNewBoxTemperatures();
+      CommitNewBoxTemperaturesAndFindMinMax();
    } while((maxTemperature - minTemperature) / maxTemperature > epsilon);
 
    StopTimers();
