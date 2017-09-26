@@ -1,6 +1,6 @@
 /***
  * File: I_DsvUpdater.h
- * Desc: Interface functions for calculating and committing one or more DSVs
+ * Desc: Interface functions for calculating and committing one or more new DSVs
  */
 
 #ifndef I_DSVUPDATER_H

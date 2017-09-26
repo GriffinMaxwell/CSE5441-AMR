@@ -7,13 +7,15 @@
 #include <time.h>
 #include "Map_Box.h"
 #include "FormattedReader_Box.h"
+#include "DsvUpdater_BoxTemperature.h"
 
 #define NS_PER_US (1000)
 
 static Map_Box_t mapIdToBox;
 static FormattedReader_Box_t boxReader;
-static List_Fixed_t activeIds;
-static List_Fixed_t nextTemperatures;
+static List_Fixed_t updatedTemperatureIds;
+static List_Fixed_t updatedTemperatures;
+static DsvUpdater_BoxTemperature_t dsvUpdater;
 
 static double affectRate;
 static double epsilon;
@@ -51,8 +53,8 @@ static void DisplayStats()
 {
    printf("\n");
    printf("********************\n");
-   printf("dissipation converged in %d iterations\n", -1);
-   printf("    with max DSV = %lf and min DSV = %lf\n", -1.0, -1.0);
+   printf("dissipation converged in %d iterations\n", numIterations);
+   printf("    with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
    printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
    printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
    printf("\n");
@@ -86,23 +88,25 @@ static void CalculateNewBoxTemperaturesAndCheckMinMax()
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
       {
-         double nextTemperature;// = CaculateNewBoxTemperature();
-         List_Add(&activeIds.interface, &i);
-         List_Add(&nextTemperatures.interface, &nextTemperature);
+         List_Add(&updatedTemperatureIds.interface, &i);
+
+         double updatedTemperature;
+         DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
+         List_Add(&updatedTemperatures.interface, &updatedTemperature);
 
          if(firstBox)
          {
          	firstBox = false;
-         	minTemperature = nextTemperature;
-         	maxTemperature = nextTemperature;
+         	minTemperature = updatedTemperature;
+         	maxTemperature = updatedTemperature;
          }
-         else if(nextTemperature < minTemperature)
+         else if(updatedTemperature < minTemperature)
          {
-         	minTemperature = nextTemperature;
+         	minTemperature = updatedTemperature;
        	}
-       	else if(nextTemperature > maxTemperature)
+       	else if(updatedTemperature > maxTemperature)
        	{
-       		maxTemperature = nextTemperature;
+       		maxTemperature = updatedTemperature;
        	}
       }
    }
@@ -111,13 +115,13 @@ static void CalculateNewBoxTemperaturesAndCheckMinMax()
 static void CommitNewBoxTemperatures()
 {
 	uint32_t i;
-   for(i = 0; i < List_Fixed_CurrentLength(&activeIds); i++)
+   for(i = 0; i < List_Fixed_CurrentLength(&updatedTemperatureIds); i++)
    {
-      int *id = List_Get(&activeIds.interface, i);
-      double *nextTemperature = List_Get(&nextTemperatures.interface, i);
+      int *id = List_Get(&updatedTemperatureIds.interface, i);
+      double *updatedTemperature = List_Get(&updatedTemperatures.interface, i);
 
       Box_t *box = Map_Find(&mapIdToBox.interface, *id);
-      DsvUpdater_Commit(__, box, nextTemperature);
+      DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
    }
 }
 
@@ -133,8 +137,9 @@ int main(int argc, char *argv[])
    // Initialize objects
    Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
-   List_Fixed_Init(&activeIds, numBoxes, sizeof(int));
-   List_Fixed_Init(&nextTemperatures, numBoxes, sizeof(double));
+   List_Fixed_Init(&updatedTemperatureIds, numBoxes, sizeof(int));
+   List_Fixed_Init(&updatedTemperatures, numBoxes, sizeof(double));
+   DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
 
 	ReadInputGrid();
 
@@ -142,14 +147,14 @@ int main(int argc, char *argv[])
 
 	numIterations = 0;
    do {
-      List_Fixed_Reset(&activeIds);
-      List_Fixed_Reset(&nextTemperatures);
+      List_Fixed_Reset(&updatedTemperatureIds);
+      List_Fixed_Reset(&updatedTemperatures);
 
       CalculateNewBoxTemperaturesAndCheckMinMax();
       CommitNewBoxTemperatures();
-      
+
       numIterations++;
-   } while(maxTemperature - minTemperature > epsilon);
+   } while((maxTemperature - minTemperature) / maxTemperature > epsilon);
 
    StopTimers();
 
@@ -157,8 +162,8 @@ int main(int argc, char *argv[])
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);
-   List_Fixed_Deinit(&activeIds);
-   List_Fixed_Deinit(&nextTemperatures);
+   List_Fixed_Deinit(&updatedTemperatureIds);
+   List_Fixed_Deinit(&updatedTemperatures);
 
    return 0;
 }
