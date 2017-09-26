@@ -1,6 +1,6 @@
 /***
  * File: I_DsvUpdater.h
- * Desc: Interface functions for calculating and committing one or more new DSVs
+ * Desc: Interface functions for calculating and committing updated DSVs
  */
 
 #ifndef I_DSVUPDATER_H
@@ -9,16 +9,16 @@
 typedef struct
 {
    /*
-    * Calculates the updated DSV as a separate piece of data.
-    * @param current: object that is or contains the current DSV
-    * @param updated: storage for the updated DSV(s)
+    * Calculates the updated DSV and stores in a separate argument.
+    * @param current: contains the current DSV
+    * @param updated: storage for the updated DSV
     */
     void (*Calculate)(void *context, void *current, void *updated);
 
     /*
     * Commits the updated DSV to the current DSV.
-    * @param current: object that is or contains the current DSV
-    * @param updated: the updated DSV(s) to commit to the current
+    * @param current: contains the current DSV
+    * @param updated: updated DSV to commit to the current
     */
     void (*Commit)(void *context, void *current, void *updated);
 } I_DsvUpdater_t;

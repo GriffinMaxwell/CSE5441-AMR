@@ -1,12 +1,20 @@
 /***
  * File: Box.h
- * Desc: Data type to store information about a box's location and its neighbors
+ * Desc: Data types for a box's sides, temperature, location, and neighbors
  */
 
 #ifndef BOX_H
 #define BOX_H
 
 #include "List_Fixed.h"
+
+typedef enum
+{
+   Box_Side_Top,
+   Box_Side_Bottom,
+   Box_Side_Left,
+   Box_Side_Right
+} Box_Side_t;
 
 typedef struct
 {

@@ -1,14 +1,14 @@
 /***
  * File: FormattedReader_Box.h
  * Desc: I_FormattedReader implementation that reads into a Box_t using the
- *       following format:
+ *       following input format:
  *
- *       line 0:  <int: upper_left_y> <int: upper_left_x> <int: height> <int: width>
- *       line 1:  <int: num_top_neighbors> <int: top_neighbor_id> [...]
- *       line 2:  <int: num_bottom_neighbors> <int: bottom_neighbor_ids> [...]
- *       line 3:  <int: num_left_neighbors> <int: left_neighbor_ids> [...]
- *       line 4:  <int: num_right_neighbors> <int: right_neighbor_ids> [...]
- *       line 5:  <double: temperature>
+ *    line 0:  <int: upperleft_y> <int: upperleft_x> <int: height> <int: width>
+ *    line 1:  <int: num_top_neighbors> <int: top_neighbor_id> [...]
+ *    line 2:  <int: num_bottom_neighbors> <int: bottom_neighbor_ids> [...]
+ *    line 3:  <int: num_left_neighbors> <int: left_neighbor_ids> [...]
+ *    line 4:  <int: num_right_neighbors> <int: right_neighbor_ids> [...]
+ *    line 5:  <double: temperature>
  */
 
 #ifndef FORMATTED_READER_H
@@ -21,6 +21,7 @@ typedef struct
 {
    I_FormattedReader_t interface;
 
+   // Private members
    FILE *input;
 } FormattedReader_Box_t;
 

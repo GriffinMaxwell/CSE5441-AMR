@@ -1,0 +1,168 @@
+3-6 minutes:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.15 0.15 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 43234 iterations
+    with max DSV = 0.088556 and min DSV = 0.075273
+    AFFECT_RATE = 0.150000;	EPSILON = 0.150000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          277260000 clicks (277.260010 s)
+    using time():           279 s
+    using clock_gettime():  278701.000 ms
+********************************************************************************
+
+real	4m38.793s
+user	4m37.086s
+sys	0m0.259s
+
+
+1:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_1
+
+********************************************************************************
+temperature dissipation converged in 52 iterations
+    with max DSV = 118.918450 and min DSV = 107.278672
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 9;	Num rows = 3;	Num columns = 3
+
+elaspsed convergence loop time:
+    using clock():          0 clicks (0.000000 s)
+    using time():           0 s
+    using clock_gettime():  0.000 ms
+********************************************************************************
+
+real	0m0.004s
+user	0m0.001s
+sys	0m0.002s
+
+
+2:
+
+[maxwell.362@epsilon cse5441_lab1]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_2
+
+********************************************************************************
+temperature dissipation converged in 245 iterations
+    with max DSV = 55.835885 and min DSV = 50.266851
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 48;	Num rows = 16;	Num columns = 16
+
+elaspsed convergence loop time:
+    using clock():          0 clicks (0.000000 s)
+    using time():           0 s
+    using clock_gettime():  4.000 ms
+********************************************************************************
+
+real	0m0.019s
+user	0m0.005s
+sys	0m0.003s
+
+
+5078:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_50_78
+
+********************************************************************************
+temperature dissipation converged in 1508 iterations
+    with max DSV = 23.369508 and min DSV = 21.035843
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 78;	Num rows = 50;	Num columns = 50
+
+elaspsed convergence loop time:
+    using clock():          50000 clicks (0.050000 s)
+    using time():           0 s
+    using clock_gettime():  53.000 ms
+********************************************************************************
+
+real	0m0.099s
+user	0m0.052s
+sys	0m0.004s
+
+
+50201:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_50_201
+
+********************************************************************************
+temperature dissipation converged in 2286 iterations
+    with max DSV = 4.788754 and min DSV = 4.309887
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 201;	Num rows = 50;	Num columns = 50
+
+elaspsed convergence loop time:
+    using clock():          150000 clicks (0.150000 s)
+    using time():           0 s
+    using clock_gettime():  166.000 ms
+********************************************************************************
+
+real	0m0.186s
+user	0m0.156s
+sys	0m0.003s
+
+
+2001166:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_200_1166 
+
+********************************************************************************
+temperature dissipation converged in 14458 iterations
+    with max DSV = 0.812728 and min DSV = 0.731459
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 1166;	Num rows = 200;	Num columns = 200
+
+elaspsed convergence loop time:
+    using clock():          5310000 clicks (5.310000 s)
+    using time():           5 s
+    using clock_gettime():  5309.000 ms
+********************************************************************************
+
+real	0m5.322s
+user	0m5.316s
+sys	0m0.001s
+
+
+4001636:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_400_1636 
+
+********************************************************************************
+temperature dissipation converged in 22280 iterations
+    with max DSV = 1.181786 and min DSV = 1.063610
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 1636;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          11680000 clicks (11.680000 s)
+    using time():           12 s
+    using clock_gettime():  11684.000 ms
+********************************************************************************
+
+real	0m11.698s
+user	0m11.692s
+sys	0m0.001s
+
+
+40012206:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 75197 iterations
+    with max DSV = 0.086671 and min DSV = 0.078004
+    AFFECT_RATE = 0.100000;	EPSILON = 0.100000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          436500000 clicks (436.500000 s)
+    using time():           437 s
+    using clock_gettime():  436914.000 ms
+********************************************************************************
+
+real	7m16.986s
+user	7m16.435s
+sys	0m0.122s
+
+

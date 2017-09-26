@@ -1,6 +1,6 @@
 /***
  * File: Macro.h
- * Desc: Macros needed throughout the project
+ * Desc: Useful macros
  */
 
 #ifndef MACRO_H
@@ -14,7 +14,7 @@
 
 #define MIN(a, b) \
    ((a) > (b)) ? (b) : (a)
-   
+
 #define REINTERPRET(new_name, old_name, new_type) \
    new_type new_name = (new_type)old_name
 
