@@ -8,8 +8,10 @@
 #include "Map_Box.h"
 #include "FormattedReader_Box.h"
 #include "DsvUpdater_BoxTemperature.h"
+#include "Macro.h"
 
-#define NS_PER_US (1000)
+#define MS_PER_SEC (1000)
+#define NS_PER_MS (1000000)
 
 static Map_Box_t mapIdToBox;
 static FormattedReader_Box_t boxReader;
@@ -52,16 +54,22 @@ static inline void StopTimers()
 static void DisplayStats()
 {
    printf("\n");
-   printf("********************\n");
-   printf("dissipation converged in %d iterations\n", numIterations);
+   printf("********************************************************************************\n");
+   printf("temperature dissipation converged in %d iterations\n", numIterations);
    printf("    with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
    printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
    printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
    printf("\n");
-   printf("elaspsed convergence loop time  (clock): %lf\n", clockEnd - clockStart);
-   printf("elaspsed convergence loop time   (time): %lf\n", difftime(timeEnd, timeStart));
-   printf("elaspsed convergence loop time (chrono): %lf\n", (double)(((rtcEnd.tv_sec - rtcStart.tv_sec) * CLOCKS_PER_SEC) + ((rtcEnd.tv_nsec - rtcStart.tv_nsec) / NS_PER_US)));
-   printf("********************\n");
+
+   printf("elaspsed convergence loop time:\n");
+   printf("    using clock():          %d clicks (%f s)\n",
+      clockEnd - clockStart,
+      ((float)(clockEnd - clockStart))/CLOCKS_PER_SEC);
+   printf("    using time():           %.f s\n", difftime(timeEnd, timeStart));
+   printf("    using clock_gettime():  %.3f ms\n",
+      (double)(((rtcEnd.tv_sec - rtcStart.tv_sec) * MS_PER_SEC)
+      + ((rtcEnd.tv_nsec - rtcStart.tv_nsec) / NS_PER_MS)));
+   printf("********************************************************************************\n");
 }
 
 static void ReadInputGrid()
@@ -79,9 +87,8 @@ static void ReadInputGrid()
    }
 }
 
-static void CalculateNewBoxTemperaturesAndCheckMinMax()
+static void CalculateNewBoxTemperatures()
 {
-	bool firstBox = true;
 	uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
@@ -93,26 +100,11 @@ static void CalculateNewBoxTemperaturesAndCheckMinMax()
          double updatedTemperature;
 			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
 			List_Add(&updatedTemperatures.interface, &updatedTemperature);
-
-         if(firstBox)
-         {
-         	firstBox = false;
-         	minTemperature = updatedTemperature;
-         	maxTemperature = updatedTemperature;
-         }
-         else if(updatedTemperature < minTemperature)
-         {
-         	minTemperature = updatedTemperature;
-       	}
-       	else if(updatedTemperature > maxTemperature)
-       	{
-       		maxTemperature = updatedTemperature;
-       	}
       }
    }
 }
 
-static void CommitNewBoxTemperatures()
+static void CommitNewBoxTemperaturesAndFindMinMax()
 {
 	uint32_t i;
    for(i = 0; i < List_Fixed_CurrentLength(&updatedTemperatureIds); i++)
@@ -122,6 +114,17 @@ static void CommitNewBoxTemperatures()
 
       Box_t *box = Map_Find(&mapIdToBox.interface, *id);
       DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
+
+      if(i == 0)
+      {
+         minTemperature = *updatedTemperature;
+         maxTemperature = *updatedTemperature;
+      }
+      else
+      {
+         minTemperature = MIN(minTemperature, *updatedTemperature);
+         maxTemperature = MAX(maxTemperature, *updatedTemperature);
+      }
    }
 }
 
@@ -145,15 +148,16 @@ int main(int argc, char *argv[])
 
    StartTimers();
 
+   // Convergence loop
 	numIterations = 0;
    do {
+      // Reset lists so they can be refilled with new temperature data
       List_Fixed_Reset(&updatedTemperatureIds);
       List_Fixed_Reset(&updatedTemperatures);
-
-      CalculateNewBoxTemperaturesAndCheckMinMax();
-      CommitNewBoxTemperatures();
-
       numIterations++;
+
+      CalculateNewBoxTemperatures();
+      CommitNewBoxTemperaturesAndFindMinMax();
    } while((maxTemperature - minTemperature) / maxTemperature > epsilon);
 
    StopTimers();

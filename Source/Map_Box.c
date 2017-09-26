@@ -11,7 +11,7 @@ static void AddEntry(void *context, int key, void *value)
 {
    REINTERPRET(instance, context, Map_Box_t *);
 
-   // store keys to know which boxes are valid and can be freed on deinit
+   // store keys to know which boxes should be freed on deinit
    instance->ids[instance->currentLength] = key;
    instance->currentLength++;
 
@@ -19,7 +19,8 @@ static void AddEntry(void *context, int key, void *value)
 }
 
 /*
- * Linear search through the keys
+ * Assumes key maps to valid box. Only returns NULL if key is too big and would
+ *  cause an array out-of-bounds
  */
 static void * FindEntry(void *context, int key)
 {
@@ -53,6 +54,7 @@ void Map_Box_Deinit(Map_Box_t *instance)
    	List_Fixed_Deinit(&instance->boxes[id].neighborIds.right);
    }
 
+   // Now deinitialize the map
    free(instance->ids);
    free(instance->boxes);
 }
