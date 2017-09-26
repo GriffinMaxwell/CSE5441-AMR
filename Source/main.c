@@ -9,7 +9,8 @@
 #include "FormattedReader_Box.h"
 #include "DsvUpdater_BoxTemperature.h"
 
-#define NS_PER_US (1000)
+#define MS_PER_SEC (1000)
+#define NS_PER_MS (1000000)
 
 static Map_Box_t mapIdToBox;
 static FormattedReader_Box_t boxReader;
@@ -52,16 +53,20 @@ static inline void StopTimers()
 static void DisplayStats()
 {
    printf("\n");
-   printf("********************\n");
-   printf("dissipation converged in %d iterations\n", numIterations);
+   printf("********************************************************************************\n");
+   printf("temperature dissipation converged in %d iterations\n", numIterations);
    printf("    with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
    printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
    printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
    printf("\n");
-   printf("elaspsed convergence loop time  (clock): %lf\n", clockEnd - clockStart);
-   printf("elaspsed convergence loop time   (time): %lf\n", difftime(timeEnd, timeStart));
-   printf("elaspsed convergence loop time (chrono): %lf\n", (double)(((rtcEnd.tv_sec - rtcStart.tv_sec) * CLOCKS_PER_SEC) + ((rtcEnd.tv_nsec - rtcStart.tv_nsec) / NS_PER_US)));
-   printf("********************\n");
+   printf("elaspsed convergence loop time         (using clock()): %d clicks, %f s\n",
+      clockEnd - clockStart,
+      ((float)(clock_end - clock_start))/CLOCKS_PER_SEC);
+   printf("elaspsed convergence loop time          (using time()): %d s\n", difftime(timeEnd, timeStart));
+   printf("elaspsed convergence loop time (using clock_gettime()): %lf ms\n",
+      (double)(((rtcEnd.tv_sec - rtcStart.tv_sec) * MS_PER_SEC)
+      + ((rtcEnd.tv_nsec - rtcStart.tv_nsec) / NS_PER_MS)));
+   printf("********************************************************************************\n");
 }
 
 static void ReadInputGrid()
