@@ -42,23 +42,23 @@ sys	0m0.002s
 
 2:
 
-[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_50_78
+[maxwell.362@epsilon cse5441_lab1]$ time ./amr 0.1 0.1 < /class/cse5441/testgrid_2
 
 ********************************************************************************
-temperature dissipation converged in 1508 iterations
-    with max DSV = 23.369508 and min DSV = 21.035843
+temperature dissipation converged in 245 iterations
+    with max DSV = 55.835885 and min DSV = 50.266851
     AFFECT_RATE = 0.100000;	EPSILON = 0.100000
-    Num boxes = 78;	Num rows = 50;	Num columns = 50
+    Num boxes = 48;	Num rows = 16;	Num columns = 16
 
 elaspsed convergence loop time:
-    using clock():          50000 clicks (0.050000 s)
+    using clock():          0 clicks (0.000000 s)
     using time():           0 s
-    using clock_gettime():  53.000 ms
+    using clock_gettime():  4.000 ms
 ********************************************************************************
 
-real	0m0.099s
-user	0m0.052s
-sys	0m0.004s
+real	0m0.019s
+user	0m0.005s
+sys	0m0.003s
 
 
 5078:
