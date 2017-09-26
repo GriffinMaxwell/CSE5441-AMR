@@ -1,7 +1,7 @@
 /***
  * File: Map_Box.h
  * Desc: I_Map implementation where a key is an ID that maps to a Box_t
-         Note: the IDs must be 0 <= ID < length
+   Note: the IDs must be 0 <= ID < length
  */
 
 #ifndef MAP_BOX_H
@@ -15,10 +15,11 @@ typedef struct
 {
    I_Map_t interface;
 
-   int *ids;
-   Box_t *boxes;
+   // Private members
    uint32_t length;
    uint32_t currentLength;
+   int *ids;
+   Box_t *boxes;
 } Map_Box_t;
 
 /*
