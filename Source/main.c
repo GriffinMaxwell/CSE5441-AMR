@@ -59,11 +59,13 @@ static void DisplayStats()
    printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
    printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
    printf("\n");
-   printf("elaspsed convergence loop time         (using clock()): %d clicks, %f s\n",
+
+   printf("elaspsed convergence loop time:\n");
+   printf("    using clock():          %d clicks (%f s)\n",
       clockEnd - clockStart,
-      ((float)(clock_end - clock_start))/CLOCKS_PER_SEC);
-   printf("elaspsed convergence loop time          (using time()): %d s\n", difftime(timeEnd, timeStart));
-   printf("elaspsed convergence loop time (using clock_gettime()): %lf ms\n",
+      ((float)(clockEnd - clockStart))/CLOCKS_PER_SEC);
+   printf("    using time():           %.f s\n", difftime(timeEnd, timeStart));
+   printf("    using clock_gettime():  %.3f ms\n",
       (double)(((rtcEnd.tv_sec - rtcStart.tv_sec) * MS_PER_SEC)
       + ((rtcEnd.tv_nsec - rtcStart.tv_nsec) / NS_PER_MS)));
    printf("********************************************************************************\n");
