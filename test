@@ -4,6 +4,4 @@ make clean
 
 make
 
-time ./amr 0.1 0.3 < /class/cse5441/testgrid_400_12206
-#time ./amr 0.1 0.1 < /class/cse5441/testgrid_1
-#time ./amr 0.1 0.1 < /class/cse5441/testgrid_50_78
+time ./amr 0.06 0.03 < /class/cse5441/testgrid_400_12206
