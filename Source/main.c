@@ -91,8 +91,8 @@ static void CalculateNewBoxTemperaturesAndCheckMinMax()
          List_Add(&updatedTemperatureIds.interface, &i);
 
          double updatedTemperature;
-         DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
-         List_Add(&updatedTemperatures.interface, &updatedTemperature);
+			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
+			List_Add(&updatedTemperatures.interface, &updatedTemperature);
 
          if(firstBox)
          {

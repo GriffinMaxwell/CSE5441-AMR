@@ -12,8 +12,8 @@ static void ReadBoxPositions(FormattedReader_Box_t *instance, Box_t *box)
    fscanf(
       instance->input,
       "%d %d %d %d",
-      &box->position.x,
       &box->position.y,
+      &box->position.x,
       &box->position.height,
       &box->position.width);
 }
