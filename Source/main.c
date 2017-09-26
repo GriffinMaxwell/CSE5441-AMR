@@ -8,6 +8,7 @@
 #include "Map_Box.h"
 #include "FormattedReader_Box.h"
 #include "DsvUpdater_BoxTemperature.h"
+#include "Macro.h"
 
 #define MS_PER_SEC (1000)
 #define NS_PER_MS (1000000)
@@ -116,13 +117,13 @@ static void CommitNewBoxTemperaturesAndFindMinMax()
 
       if(i == 0)
       {
-         minTemperature = updatedTemperature;
-         maxTemperature = updatedTemperature;
+         minTemperature = *updatedTemperature;
+         maxTemperature = *updatedTemperature;
       }
       else
       {
-         minTemperature = MIN(minTemperature, updatedTemperature);
-         maxTemperature = MAX(maxTemperature, updatedTemperature);
+         minTemperature = MIN(minTemperature, *updatedTemperature);
+         maxTemperature = MAX(maxTemperature, *updatedTemperature);
       }
    }
 }
