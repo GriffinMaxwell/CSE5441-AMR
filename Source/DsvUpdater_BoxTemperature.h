@@ -10,11 +10,11 @@
 #define DSVUPDATER_BOXTEMPERATURE_H
 
 #include "I_DsvUpdater.h"
-#include "Map_Box_t"
+#include "Map_Box.h"
 
-typdef struct
+typedef struct
 {
-   DsvUpdater_BoxTemperature_t interface;
+   I_DsvUpdater_t interface;
 
    Map_Box_t *map;
    double affectRate;

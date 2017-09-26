@@ -11,7 +11,7 @@ INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CFLAGS = -O3
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
 $(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -lrt -o $@ $(LDFLAGS)
