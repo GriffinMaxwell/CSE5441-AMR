@@ -40,12 +40,13 @@ clean:
 	@$(RM) $(TARGET_EXEC)
 
 package:
-	@echo Packaging up project for submission...
+	@echo "Packaging up project for submission..."
 	@mkdir -p cse5441_lab1
 	@cp Source/*.c Source/*.h cse5441_lab1
 	@cp submit.mk cse5441_lab1
 	@mv cse5441_lab1/submit.mk cse5441_lab1/Makefile
-	
+	@cp Documentation/report.pdf cse5441_lab1
+
 -include $(DEPS)
 
 MKDIR_P ?= mkdir -p
