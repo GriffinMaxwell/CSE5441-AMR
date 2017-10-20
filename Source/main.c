@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
+#include <pthread.h>
 #include "Map_Box.h"
 #include "FormattedReader_Box.h"
 #include "DsvUpdater_BoxTemperature.h"
@@ -21,6 +22,7 @@ static DsvUpdater_BoxTemperature_t dsvUpdater;
 
 static double affectRate;
 static double epsilon;
+static int numThreads;
 
 static uint32_t numBoxes;
 static uint32_t numGridRows;
@@ -87,8 +89,10 @@ static void ReadInputGrid()
    }
 }
 
-static void CalculateNewBoxTemperatures()
+static void * ThreadSafeCalculateNewBoxTemperatures(void * _args);
 {
+   REINTERPRET(args, _args, PthreadArgs_t);
+
 	uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
@@ -102,6 +106,8 @@ static void CalculateNewBoxTemperatures()
 			List_Add(&updatedTemperatures.interface, &updatedTemperature);
       }
    }
+
+   pthread_exit(NULL);
 }
 
 static void CommitNewBoxTemperaturesAndFindMinMax()
@@ -133,6 +139,7 @@ int main(int argc, char *argv[])
    // Parse command line args
    sscanf(argv[1], "%lf", &affectRate);
    sscanf(argv[2], "%lf", &epsilon);
+   sscanf(argv[3], "%d", &numThreads);
 
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
@@ -143,6 +150,7 @@ int main(int argc, char *argv[])
    List_Fixed_Init(&updatedTemperatureIds, numBoxes, sizeof(int));
    List_Fixed_Init(&updatedTemperatures, numBoxes, sizeof(double));
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
+   pthread_t threads[numThreads];
 
 	ReadInputGrid();
 
@@ -156,7 +164,15 @@ int main(int argc, char *argv[])
       List_Fixed_Reset(&updatedTemperatures);
       numIterations++;
 
-      CalculateNewBoxTemperatures();
+      int i;
+      for(i = 0; i < numThreads; i++)
+      {
+         //pthread_create(ThreadSafeCalculateDsv, pthreadArgs);
+      }
+      for(i = 0; i < numThreads; i++)
+      {
+         //pthread_join();
+      }
       CommitNewBoxTemperaturesAndFindMinMax();
    } while((maxTemperature - minTemperature) / maxTemperature > epsilon);
 
