@@ -173,8 +173,9 @@ int main(int argc, char *argv[])
       {
          //pthread_join();
       }
+
       CommitNewBoxTemperaturesAndFindMinMax();
-   } while((maxTemperature - minTemperature) / maxTemperature > epsilon);
+   } while((maxTemperature - minTemperature) > epsilon * maxTemperature);
 
    StopTimers();
 
