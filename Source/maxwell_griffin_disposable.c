@@ -119,16 +119,8 @@ static void CommitUpdatedBoxTemperaturesAndFindMinMax()
          double *updatedTemperature = Map_Find(&mapIdToUpdatedTemperature.interface, i);
          DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
 
-         if(i == 0)
-         {
-            minTemperature = *updatedTemperature;
-            maxTemperature = *updatedTemperature;
-         }
-         else
-         {
-            minTemperature = MIN(minTemperature, *updatedTemperature);
-            maxTemperature = MAX(maxTemperature, *updatedTemperature);
-         }
+         minTemperature = (i == 0) ? *updatedTemperature : MIN(minTemperature, *updatedTemperature);
+         maxTemperature = (i == 0) ? *updatedTemperature : MAX(maxTemperature, *updatedTemperature);
       }
    }
 }
@@ -161,7 +153,7 @@ int main(int argc, char *argv[])
    StartTimers();
 
    // Convergence loop
-	for(numIterations = 0; !MEETS_CONVERGENCE_CONDITION(maxTemperature, minTemperature, epsilon); numIterations++)
+	for(numIterations = 0; !HAS_CONVERGED(maxTemperature, minTemperature, epsilon); numIterations++)
    {
       int *threadId;
       pthread_t threads[numThreads];
@@ -170,6 +162,7 @@ int main(int argc, char *argv[])
       for(i = 0; i < numThreads; i++)
       {
          threadId = malloc(sizeof(int));
+         *threadId = i;
          pthread_create(&threads[i], NULL, ThreadSafeCalculateUpdatedBoxTemperatures, (void *)threadId);
       }
       for(i = 0; i < numThreads; i++)
