@@ -12,6 +12,9 @@
 #define MAX(a, b) \
    ((a) > (b)) ? (a) : (b)
 
+#define MEETS_CONVERGENCE_CONDITION(max, min, epsilon) \
+      ((max - min) <= (epsilon * max))
+
 #define MIN(a, b) \
    ((a) > (b)) ? (b) : (a)
 

@@ -161,10 +161,8 @@ int main(int argc, char *argv[])
    StartTimers();
 
    // Convergence loop
-	numIterations = 0;
-   do { // TODO change to for
-      numIterations++;
-
+	for(numIterations = 0; !MEETS_CONVERGENCE_CONDITION(maxTemperature, minTemperature, epsilon); numIterations++)
+   {
       int *threadId;
       pthread_t threads[numThreads];
 
@@ -181,7 +179,7 @@ int main(int argc, char *argv[])
       }
 
       CommitUpdatedBoxTemperaturesAndFindMinMax();
-   } while((maxTemperature - minTemperature) > epsilon * maxTemperature);
+   }
 
    StopTimers();
 
