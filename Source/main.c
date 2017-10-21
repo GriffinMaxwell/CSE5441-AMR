@@ -15,9 +15,8 @@
 #define NS_PER_MS (1000000)
 
 static Map_Box_t mapIdToBox;
+static Map_Box_t mapIdToUpdatedTemperature;
 static FormattedReader_Box_t boxReader;
-static List_Fixed_t updatedTemperatureIds;
-static List_Fixed_t updatedTemperatures;
 static DsvUpdater_BoxTemperature_t dsvUpdater;
 
 static double affectRate;
@@ -89,47 +88,47 @@ static void ReadInputGrid()
    }
 }
 
-static void * ThreadSafeCalculateNewBoxTemperatures(void * _args);
+static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args);
 {
-   REINTERPRET(args, _args, PthreadArgs_t);
+   REINTERPRET(threadId, args, int *);
 
+	uint32_t i;
+   for(i = *threadId; i < numBoxes; i += numThreads)
+   {
+      Box_t *box = Map_Find(&mapIdToBox.interface, i);
+      if(NULL != box)
+      {
+         double updatedTemperature;
+			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
+			Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
+      }
+   }
+
+   free(threadId);
+   pthread_exit(NULL);
+}
+
+static void CommitUpdatedBoxTemperaturesAndFindMinMax()
+{
 	uint32_t i;
    for(i = 0; i < numBoxes; i++)
    {
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
       {
-         List_Add(&updatedTemperatureIds.interface, &i);
+         double *updatedTemperature = Map_Find(&mapIdToUpdatedTemperature.interface, i);
+         DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
 
-         double updatedTemperature;
-			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
-			List_Add(&updatedTemperatures.interface, &updatedTemperature);
-      }
-   }
-
-   pthread_exit(NULL);
-}
-
-static void CommitNewBoxTemperaturesAndFindMinMax()
-{
-	uint32_t i;
-   for(i = 0; i < List_Fixed_CurrentLength(&updatedTemperatureIds); i++)
-   {
-      int *id = List_Get(&updatedTemperatureIds.interface, i);
-      double *updatedTemperature = List_Get(&updatedTemperatures.interface, i);
-
-      Box_t *box = Map_Find(&mapIdToBox.interface, *id);
-      DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
-
-      if(i == 0)
-      {
-         minTemperature = *updatedTemperature;
-         maxTemperature = *updatedTemperature;
-      }
-      else
-      {
-         minTemperature = MIN(minTemperature, *updatedTemperature);
-         maxTemperature = MAX(maxTemperature, *updatedTemperature);
+         if(i == 0)
+         {
+            minTemperature = *updatedTemperature;
+            maxTemperature = *updatedTemperature;
+         }
+         else
+         {
+            minTemperature = MIN(minTemperature, *updatedTemperature);
+            maxTemperature = MAX(maxTemperature, *updatedTemperature);
+         }
       }
    }
 }
@@ -153,11 +152,9 @@ int main(int argc, char *argv[])
 
    // Initialize objects
    Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
+   Map_Box_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
-   List_Fixed_Init(&updatedTemperatureIds, numBoxes, sizeof(int));
-   List_Fixed_Init(&updatedTemperatures, numBoxes, sizeof(double));
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
-   pthread_t threads[numThreads];
 
 	ReadInputGrid();
 
@@ -165,23 +162,25 @@ int main(int argc, char *argv[])
 
    // Convergence loop
 	numIterations = 0;
-   do {
-      // Reset lists so they can be refilled with new temperature data
-      List_Fixed_Reset(&updatedTemperatureIds);
-      List_Fixed_Reset(&updatedTemperatures);
+   do { // TODO change to for
       numIterations++;
+
+      int *threadId;
+      pthread_t threads[numThreads];
 
       int i;
       for(i = 0; i < numThreads; i++)
       {
-         //pthread_create(ThreadSafeCalculateDsv, pthreadArgs);
+         threadId = malloc(sizeof(int));
+         pthread_create(&threads[i], NULL, ThreadSafeCalculateUpdatedBoxTemperatures, (void *)threadId);
       }
       for(i = 0; i < numThreads; i++)
       {
-         //pthread_join();
+         void *threadStatus;
+         pthread_join(threads[i], &threadStatus);
       }
 
-      CommitNewBoxTemperaturesAndFindMinMax();
+      CommitUpdatedBoxTemperaturesAndFindMinMax();
    } while((maxTemperature - minTemperature) > epsilon * maxTemperature);
 
    StopTimers();
