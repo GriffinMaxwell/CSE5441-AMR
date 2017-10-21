@@ -13,7 +13,7 @@
    ((a) > (b)) ? (a) : (b)
 
 #define HAS_CONVERGED(max, min, epsilon) \
-      ((max - min) <= (epsilon * max))
+      (((max) - (min)) <= ((epsilon) * (max)))
 
 #define MIN(a, b) \
    ((a) > (b)) ? (b) : (a)
