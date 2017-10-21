@@ -7,6 +7,7 @@
 #include <time.h>
 #include <pthread.h>
 #include "Map_Box.h"
+#include "Map_Double.h"
 #include "FormattedReader_Box.h"
 #include "DsvUpdater_BoxTemperature.h"
 #include "Macro.h"
@@ -175,13 +176,11 @@ int main(int argc, char *argv[])
    }
 
    StopTimers();
-
    DisplayStats();
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);
-   List_Fixed_Deinit(&updatedTemperatureIds);
-   List_Fixed_Deinit(&updatedTemperatures);
+   Map_Double_Deinit(&mapIdToUpdatedTemperature);
 
    return 0;
 }
