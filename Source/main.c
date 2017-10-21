@@ -136,6 +136,13 @@ static void CommitNewBoxTemperaturesAndFindMinMax()
 
 int main(int argc, char *argv[])
 {
+   if (argc < 4)
+   {
+      printf("Error: Not enough arguments.");
+      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS");
+      return 0;
+   }
+
    // Parse command line args
    sscanf(argv[1], "%lf", &affectRate);
    sscanf(argv[2], "%lf", &epsilon);
