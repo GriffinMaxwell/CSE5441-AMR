@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS := -O3 -lrt
+LINKFLAGS := -lrt -pthread
+CFLAGS := -O3
 DEPS := \
 	Box.h \
 	DsvUpdater_BoxTemperature.h \
@@ -11,21 +12,24 @@ DEPS := \
 	List_Fixed.h \
 	Macro.h \
 	Map_Box.h \
+	Map_Double.h \
 
 OBJ = \
 	DsvUpdater_BoxTemperature.o \
 	FormattedReader_Box.o \
 	List_Fixed.o \
-	main.o \
 	Map_Box.o \
+	Map_Double.o \
+	maxwell_griffin_disposable.o \
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-amr: $(OBJ)
-	gcc -o $@ $^ $(CFLAGS)
+amr: $(OBJ) 
+	$(CC) -c -o maxwell_griffin_disposable.o maxwell_griffin_disposable.c $(CFLAGS)
+	$(CC) -o disposable $^ $(CFLAGS) $(LINKFLAGS)
 	
 .PHONY: clean
 clean:
 	@echo Cleaning build files...
-	@rm -f *.o amr
+	@rm -f *.o disposable
