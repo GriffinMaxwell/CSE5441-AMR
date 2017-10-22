@@ -91,7 +91,7 @@ static void ReadInputGrid()
    }
 }
 
-static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args)
+static void * ThreadSafeCalculateUpdatedBoxTemperatures(void *args)
 {
    REINTERPRET(threadId, args, int *);
 

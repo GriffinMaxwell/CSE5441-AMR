@@ -40,6 +40,8 @@ static struct timespec rtcEnd;
 static double minTemperature;
 static double maxTemperature;
 
+static int threadId;
+
 static inline void StartTimers()
 {
    clockStart = clock();
@@ -91,7 +93,16 @@ static void ReadInputGrid()
    }
 }
 
-static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args)
+static void * ThreadSafeStoreThreadId(void *args)
+{
+	REINTERPRET(myThreadId, args, int *);
+	
+	threadId = *myThreadId;
+	
+	free(myThreadId);
+}
+
+static void * CalculateUpdatedBoxTemperatures(void *args)
 {
    REINTERPRET(threadId, args, int *);
 
@@ -112,7 +123,6 @@ static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args)
       }
    }
 
-   free(threadId);
    pthread_exit(NULL);
 }
 
@@ -155,33 +165,35 @@ int main(int argc, char *argv[])
    Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
-
+   pthread_t threads[numThreads];
+      
 	ReadInputGrid();
 
    StartTimers();
+
+   int i;
+   for(i = 0; i < numThreads; i++)
+   {
+      int *localThreadId = malloc(sizeof(int));
+      *threadId = i;
+      pthread_create(&threads[i], NULL, ___, (void *)localThreadId);
+   }
 
    // Convergence loop
    bool hasConverged = false;
 	for(numIterations = 0; !hasConverged; numIterations++)
    {
-      int *threadId;
-      pthread_t threads[numThreads];
-
-      int i;
-      for(i = 0; i < numThreads; i++)
-      {
-         threadId = malloc(sizeof(int));
-         *threadId = i;
-         pthread_create(&threads[i], NULL, ThreadSafeCalculateUpdatedBoxTemperatures, (void *)threadId);
-      }
-      for(i = 0; i < numThreads; i++)
-      {
-         void *threadStatus;
-         pthread_join(threads[i], &threadStatus);
-      }
-
+   	CalculateUpdatedBoxTemperatures(
       CommitUpdatedBoxTemperaturesAndFindMinMax();
+      
+      // pthread_barrier_wait
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+   }
+   
+   for(i = 0; i < numThreads; i++)
+   {
+      void *threadStatus;
+      pthread_join(threads[i], &threadStatus);
    }
 
    StopTimers();
