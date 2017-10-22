@@ -6,11 +6,12 @@
 #include "Map_Double.h"
 #include "Macro.h"
 
-static void AddEntry(void *context, int key, void *value)
+static void AddEntry(void *context, int key, void *_value)
 {
    REINTERPRET(instance, context, Map_Double_t *);
-
-   instance->doubles[key] = value;
+	REINTERPRET(value, _value, double *);
+	
+   instance->doubles[key] = *value;
 }
 
 /*
@@ -19,7 +20,7 @@ static void AddEntry(void *context, int key, void *value)
  */
 static void * FindEntry(void *context, int key)
 {
-   REINTERPRET(instance, context, Map_Dobule_t *);
+   REINTERPRET(instance, context, Map_Double_t *);
 
    return (key < instance->length) ? &instance->doubles[key] : NULL;
 }
@@ -33,7 +34,7 @@ void Map_Double_Init(Map_Double_t *instance, uint32_t length)
    instance->length = length;
 }
 
-void Map_Box_Deinit(Map_Box_t *instance)
+void Map_Double_Deinit(Map_Double_t *instance)
 {
    free(instance->doubles);
 }

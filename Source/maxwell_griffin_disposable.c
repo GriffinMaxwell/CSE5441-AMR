@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <pthread.h>
 #include "Map_Box.h"
@@ -16,7 +17,7 @@
 #define NS_PER_MS (1000000)
 
 static Map_Box_t mapIdToBox;
-static Map_Box_t mapIdToUpdatedTemperature;
+static Map_Double_t mapIdToUpdatedTemperature;
 static FormattedReader_Box_t boxReader;
 static DsvUpdater_BoxTemperature_t dsvUpdater;
 
@@ -58,6 +59,7 @@ static void DisplayStats()
    printf("\n");
    printf("********************************************************************************\n");
    printf("temperature dissipation converged in %d iterations\n", numIterations);
+   printf("    with number of (disposable) pthreads = %d\n", numThreads);
    printf("    with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
    printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
    printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
@@ -89,7 +91,7 @@ static void ReadInputGrid()
    }
 }
 
-static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args);
+static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args)
 {
    REINTERPRET(threadId, args, int *);
 
@@ -130,8 +132,8 @@ int main(int argc, char *argv[])
 {
    if (argc < 4)
    {
-      printf("Error: Not enough arguments.");
-      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS");
+      printf("Error: Not enough arguments.\n");
+      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS\n");
       return 0;
    }
 
@@ -145,7 +147,7 @@ int main(int argc, char *argv[])
 
    // Initialize objects
    Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
-   Map_Box_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
+   Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
 
@@ -154,7 +156,8 @@ int main(int argc, char *argv[])
    StartTimers();
 
    // Convergence loop
-	for(numIterations = 0; !HAS_CONVERGED(maxTemperature, minTemperature, epsilon); numIterations++)
+   bool hasConverged = false;
+	for(numIterations = 0; !hasConverged; numIterations++)
    {
       int *threadId;
       pthread_t threads[numThreads];
@@ -173,6 +176,7 @@ int main(int argc, char *argv[])
       }
 
       CommitUpdatedBoxTemperaturesAndFindMinMax();
+      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
    }
 
    StopTimers();

@@ -10,11 +10,12 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+TARGETFLAGS = -O3 -lrt -pthread
 CFLAGS = -O3
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
 $(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -lrt -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) $(TARGETFLAGS) -o $@ $(LDFLAGS)
 
 # assembly
 $(BUILD_DIR)/%.s.o: %.s
@@ -32,7 +33,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 
-.PHONY: clean package
+.PHONY: clean package disposable persistent
 
 clean:
 	@echo Cleaning build files...
@@ -46,6 +47,10 @@ package:
 	@cp submit.mk cse5441_lab1
 	@mv cse5441_lab1/submit.mk cse5441_lab1/Makefile
 	@cp Documentation/report.pdf cse5441_lab1
+	
+#disposable:
+
+#persistent:	
 
 -include $(DEPS)
 
