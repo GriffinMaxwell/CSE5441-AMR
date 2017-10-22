@@ -4,8 +4,11 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
 #include "Map_Box.h"
+#include "Map_Double.h"
 #include "FormattedReader_Box.h"
 #include "DsvUpdater_BoxTemperature.h"
 #include "Macro.h"
@@ -14,13 +17,13 @@
 #define NS_PER_MS (1000000)
 
 static Map_Box_t mapIdToBox;
+static Map_Double_t mapIdToUpdatedTemperature;
 static FormattedReader_Box_t boxReader;
-static List_Fixed_t updatedTemperatureIds;
-static List_Fixed_t updatedTemperatures;
 static DsvUpdater_BoxTemperature_t dsvUpdater;
 
 static double affectRate;
 static double epsilon;
+static int numThreads;
 
 static uint32_t numBoxes;
 static uint32_t numGridRows;
@@ -56,6 +59,7 @@ static void DisplayStats()
    printf("\n");
    printf("********************************************************************************\n");
    printf("temperature dissipation converged in %d iterations\n", numIterations);
+   printf("    with number of (disposable) pthreads = %d\n", numThreads);
    printf("    with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
    printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
    printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
@@ -87,7 +91,32 @@ static void ReadInputGrid()
    }
 }
 
-static void CalculateNewBoxTemperatures()
+static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args)
+{
+   REINTERPRET(threadId, args, int *);
+
+	// block distribution
+	int boxesPerThread = numBoxes / numThreads;
+	int start = (*threadId) * boxesPerThread;
+	int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
+	
+	uint32_t i;
+   for(i = start; i < end; i++)
+   {
+      Box_t *box = Map_Find(&mapIdToBox.interface, i);
+      if(NULL != box)
+      {
+         double updatedTemperature;
+			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
+			Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
+      }
+   }
+
+   free(threadId);
+   pthread_exit(NULL);
+}
+
+static void CommitUpdatedBoxTemperaturesAndFindMinMax()
 {
 	uint32_t i;
    for(i = 0; i < numBoxes; i++)
@@ -95,53 +124,36 @@ static void CalculateNewBoxTemperatures()
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
       {
-         List_Add(&updatedTemperatureIds.interface, &i);
+         double *updatedTemperature = Map_Find(&mapIdToUpdatedTemperature.interface, i);
+         DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
 
-         double updatedTemperature;
-			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
-			List_Add(&updatedTemperatures.interface, &updatedTemperature);
-      }
-   }
-}
-
-static void CommitNewBoxTemperaturesAndFindMinMax()
-{
-	uint32_t i;
-   for(i = 0; i < List_Fixed_CurrentLength(&updatedTemperatureIds); i++)
-   {
-      int *id = List_Get(&updatedTemperatureIds.interface, i);
-      double *updatedTemperature = List_Get(&updatedTemperatures.interface, i);
-
-      Box_t *box = Map_Find(&mapIdToBox.interface, *id);
-      DsvUpdater_Commit(&dsvUpdater.interface, box, updatedTemperature);
-
-      if(i == 0)
-      {
-         minTemperature = *updatedTemperature;
-         maxTemperature = *updatedTemperature;
-      }
-      else
-      {
-         minTemperature = MIN(minTemperature, *updatedTemperature);
-         maxTemperature = MAX(maxTemperature, *updatedTemperature);
+         minTemperature = (i == 0) ? *updatedTemperature : MIN(minTemperature, *updatedTemperature);
+         maxTemperature = (i == 0) ? *updatedTemperature : MAX(maxTemperature, *updatedTemperature);
       }
    }
 }
 
 int main(int argc, char *argv[])
 {
+   if (argc < 4)
+   {
+      printf("Error: Not enough arguments.\n");
+      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS\n");
+      return 0;
+   }
+
    // Parse command line args
    sscanf(argv[1], "%lf", &affectRate);
    sscanf(argv[2], "%lf", &epsilon);
+   sscanf(argv[3], "%d", &numThreads);
 
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
    // Initialize objects
    Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
+   Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
-   List_Fixed_Init(&updatedTemperatureIds, numBoxes, sizeof(int));
-   List_Fixed_Init(&updatedTemperatures, numBoxes, sizeof(double));
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
 
 	ReadInputGrid();
@@ -149,25 +161,35 @@ int main(int argc, char *argv[])
    StartTimers();
 
    // Convergence loop
-	numIterations = 0;
-   do {
-      // Reset lists so they can be refilled with new temperature data
-      List_Fixed_Reset(&updatedTemperatureIds);
-      List_Fixed_Reset(&updatedTemperatures);
-      numIterations++;
+   bool hasConverged = false;
+	for(numIterations = 0; !hasConverged; numIterations++)
+   {
+      int *threadId;
+      pthread_t threads[numThreads];
 
-      CalculateNewBoxTemperatures();
-      CommitNewBoxTemperaturesAndFindMinMax();
-   } while((maxTemperature - minTemperature) / maxTemperature > epsilon);
+      int i;
+      for(i = 0; i < numThreads; i++)
+      {
+         threadId = malloc(sizeof(int));
+         *threadId = i;
+         pthread_create(&threads[i], NULL, ThreadSafeCalculateUpdatedBoxTemperatures, (void *)threadId);
+      }
+      for(i = 0; i < numThreads; i++)
+      {
+         void *threadStatus;
+         pthread_join(threads[i], &threadStatus);
+      }
+
+      CommitUpdatedBoxTemperaturesAndFindMinMax();
+      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+   }
 
    StopTimers();
-
    DisplayStats();
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);
-   List_Fixed_Deinit(&updatedTemperatureIds);
-   List_Fixed_Deinit(&updatedTemperatures);
+   Map_Double_Deinit(&mapIdToUpdatedTemperature);
 
    return 0;
 }

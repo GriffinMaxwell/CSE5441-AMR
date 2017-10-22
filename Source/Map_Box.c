@@ -34,8 +34,8 @@ void Map_Box_Init(Map_Box_t *instance, uint32_t length)
    instance->interface.Add = AddEntry;
    instance->interface.Find = FindEntry;
 
-   instance->ids = calloc((size_t)length, sizeof(int));
-   instance->boxes = calloc((size_t)length, sizeof(Box_t));
+   instance->ids = (int *)calloc((size_t)length, sizeof(int));
+   instance->boxes = (Box_t *)calloc((size_t)length, sizeof(Box_t));
 
    instance->length = length;
    instance->currentLength = 0;

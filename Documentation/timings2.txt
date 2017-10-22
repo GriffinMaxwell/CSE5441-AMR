@@ -1,0 +1,28 @@
+SERIAL SERIAL SERIAL SERIAL SERIAL SERIAL SERIAL SERIAL SERIAL SERIAL SERIAL 
+
+3-6 minutes:
+
+[maxwell.362@beta CSE5441-AMR]$ time ./amr 0.15 0.15 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 43234 iterations
+    with max DSV = 0.088556 and min DSV = 0.075273
+    AFFECT_RATE = 0.150000;	EPSILON = 0.150000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          277260000 clicks (277.260010 s)
+    using time():           279 s
+    using clock_gettime():  278701.000 ms
+********************************************************************************
+
+real	4m38.793s
+user	4m37.086s
+sys	0m0.259s
+
+
+DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE 
+
+1 thread:
+
+

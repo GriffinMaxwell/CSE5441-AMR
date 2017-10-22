@@ -1,20 +1,29 @@
-TARGET_EXEC := amr
+TARGET_EXEC_1 := disposable
+TARGET_EXEC_2 := persistent
 
 BUILD_DIR := Build
 SRC_DIRS := Source
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+SRCS := $(shell find $(SRC_DIRS) ! -name maxwell_griffin* -and \( -name *.cpp -or -name *.c -or -name *.s \))
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS = -O3
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+LINKFLAGS := -O3 -lrt -pthread
+CFLAGS := -O3
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
-$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -lrt -o $@ $(LDFLAGS)
+all: $(TARGET_EXEC_1) $(TARGET_EXEC_2)
+
+$(TARGET_EXEC_1): $(OBJS)
+	$(CC) -c -o $(BUILD_DIR)/maxwell_griffin_disposable.o Source/maxwell_griffin_disposable.c $(CFLAGS)
+	$(CC) $(BUILD_DIR)/maxwell_griffin_disposable.o $(OBJS) $(LINKFLAGS) -o $@ $(LDFLAGS)
+
+$(TARGET_EXEC_2): $(OBJS)
+	$(CC) -c -o $(BUILD_DIR)/maxwell_griffin_persistent.o Source/maxwell_griffin_persistent.c $(CFLAGS)
+	$(CC) $(BUILD_DIR)/maxwell_griffin_persistent.o $(OBJS) $(LINKFLAGS) -o $@ $(LDFLAGS)
 
 # assembly
 $(BUILD_DIR)/%.s.o: %.s
@@ -32,20 +41,25 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 
-.PHONY: clean package
+.PHONY: clean package disposable persistent
 
 clean:
 	@echo Cleaning build files...
 	@$(RM) -r $(BUILD_DIR)
-	@$(RM) $(TARGET_EXEC)
+	@$(RM) $(TARGET_EXEC_1)
+	@$(RM) $(TARGET_EXEC_2)
 
 package:
 	@echo "Packaging up project for submission..."
-	@mkdir -p cse5441_lab1
-	@cp Source/*.c Source/*.h cse5441_lab1
-	@cp submit.mk cse5441_lab1
-	@mv cse5441_lab1/submit.mk cse5441_lab1/Makefile
-	@cp Documentation/report.pdf cse5441_lab1
+	@mkdir -p cse5441_lab2
+	@cp Source/*.c Source/*.h cse5441_lab2
+	@cp submit.mk cse5441_lab2
+	@mv cse5441_lab2/submit.mk cse5441_lab2/Makefile
+#	@cp Documentation/report2.pdf cse5441_lab2/report.pdf
+	
+#disposable:
+
+#persistent:	
 
 -include $(DEPS)
 
