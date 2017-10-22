@@ -95,8 +95,13 @@ static void * ThreadSafeCalculateUpdatedBoxTemperatures(void * args)
 {
    REINTERPRET(threadId, args, int *);
 
+	// block distribution
+	int boxesPerThread = numBoxes / numThreads;
+	int start = (*threadId) * boxesPerThread;
+	int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
+	
 	uint32_t i;
-   for(i = *threadId; i < numBoxes; i += numThreads)
+   for(i = start; i < end; i++)
    {
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
