@@ -1,21 +1,29 @@
-TARGET_EXEC := amr
+TARGET_EXEC_1 := disposable
+TARGET_EXEC_2 := persistent
 
 BUILD_DIR := Build
 SRC_DIRS := Source
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+SRCS := $(shell find $(SRC_DIRS) ! -name maxwell_griffin* -and \( -name *.cpp -or -name *.c -or -name *.s \))
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-TARGETFLAGS = -O3 -lrt -pthread
-CFLAGS = -O3
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+LINKFLAGS := -O3 -lrt -pthread
+CFLAGS := -O3
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
-$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) $(TARGETFLAGS) -o $@ $(LDFLAGS)
+all: $(TARGET_EXEC_1) $(TARGET_EXEC_2)
+
+$(TARGET_EXEC_1): $(OBJS)
+	$(CC) -c -o $(BUILD_DIR)/maxwell_griffin_disposable.o Source/maxwell_griffin_disposable.c $(CFLAGS)
+	$(CC) $(BUILD_DIR)/maxwell_griffin_disposable.o $(OBJS) $(LINKFLAGS) -o $@ $(LDFLAGS)
+
+$(TARGET_EXEC_2): $(OBJS)
+	$(CC) -c -o $(BUILD_DIR)/maxwell_griffin_persistent.o Source/maxwell_griffin_persistent.c $(CFLAGS)
+	$(CC) $(BUILD_DIR)/maxwell_griffin_persistent.o $(OBJS) $(LINKFLAGS) -o $@ $(LDFLAGS)
 
 # assembly
 $(BUILD_DIR)/%.s.o: %.s
@@ -38,7 +46,8 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 clean:
 	@echo Cleaning build files...
 	@$(RM) -r $(BUILD_DIR)
-	@$(RM) $(TARGET_EXEC)
+	@$(RM) $(TARGET_EXEC_1)
+	@$(RM) $(TARGET_EXEC_2)
 
 package:
 	@echo "Packaging up project for submission..."

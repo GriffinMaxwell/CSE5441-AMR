@@ -20,16 +20,21 @@ OBJ = \
 	List_Fixed.o \
 	Map_Box.o \
 	Map_Double.o \
-	maxwell_griffin_disposable.o \
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-amr: $(OBJ) 
+all: disposable persistent
+
+disposable: maxwell_griffin_disposable.o $(OBJ) 
 	$(CC) -c -o maxwell_griffin_disposable.o maxwell_griffin_disposable.c $(CFLAGS)
-	$(CC) -o disposable $^ $(CFLAGS) $(LINKFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LINKFLAGS)
+	
+persistent: maxwell_griffin_persistent.o $(OBJ) 
+	$(CC) -c -o maxwell_griffin_persistent.o maxwell_griffin_persistent.c $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LINKFLAGS)
 	
 .PHONY: clean
 clean:
 	@echo Cleaning build files...
-	@rm -f *.o disposable
+	@rm -f *.o disposable persistent
