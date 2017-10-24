@@ -111,24 +111,24 @@ static void * CalculateUpdatedBoxTemperatures(int start, int end)
 
 static void CommitUpdatedBoxTemperatures(int start, int end)
 {
-	uint32_t i;
+   uint32_t i;
    for(i = start; i < end; i++)
    {
       DsvUpdater_Commit(
-      	&dsvUpdater.interface,
-      	Map_Find(&mapIdToBox.interface, i),
-      	Map_Find(&mapIdToUpdatedTemperature.interface, i));
+         &dsvUpdater.interface,
+         Map_Find(&mapIdToBox.interface, i),
+         Map_Find(&mapIdToUpdatedTemperature.interface, i));
    }
 }
 
 static void FindMinMax()
 {
-	// Start with first temperature
-	double updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, 0);
-	minTemperature = updatedTemperature;
-	maxTemperature = updatedTemperature;
+   // Start with first temperature
+   double updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, 0);
+   minTemperature = updatedTemperature;
+   maxTemperature = updatedTemperature;
 	
-	uint32_t i;
+   uint32_t i;
    for(i = 1; i < numBoxes; i++)
    {
          updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, i);
@@ -140,7 +140,7 @@ static void FindMinMax()
 
 static void * ThreadSafeConvergenceLoop(void *args)
 {
-	REINTERPRET(threadId, args, int *);
+   REINTERPRET(threadId, args, int *);
 
    // Convergence loop
    while(!hasConverged)
@@ -160,7 +160,7 @@ static void * ThreadSafeConvergenceLoop(void *args)
       pthread_barrier_wait(&barrierConverged);
    }
    
-	free(threadId);
+   free(threadId);
    pthread_exit(NULL);
 }
 
