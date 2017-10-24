@@ -40,7 +40,8 @@ static struct timespec rtcEnd;
 static double minTemperature;
 static double maxTemperature;
 
-static int threadId;
+static bool hasConverged = false;
+static pthread_barrier_t barrierCalculate, barrierCommit, barrierConverged;
 
 static inline void StartTimers()
 {
@@ -93,24 +94,31 @@ static void ReadInputGrid()
    }
 }
 
-static void * ThreadSafeStoreThreadId(void *args)
+static void * ThreadSafeConvergenceLoop(void *args)
 {
-	REINTERPRET(myThreadId, args, int *);
-	
-	threadId = *myThreadId;
-	
+	REINTERPRET(threadId, args, int *);
+
+   // Convergence loop
+   while(!hasConverged)
+   {
+      // block distribution
+      int boxesPerThread = numBoxes / numThreads;
+      int start = (*threadId) * boxesPerThread;
+      int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
+
+      CalculateUpdatedBoxTemperatures(/**/);
+
+      pthread_barrier_wait(&barrierCalculate);
+      pthread_barrier_wait(&barrierCommit);
+      pthread_barrier_wait(&barrierConverged);
+   }
+   
 	free(myThreadId);
+   pthread_exit(NULL);
 }
 
-static void * CalculateUpdatedBoxTemperatures(void *args)
+static void * CalculateUpdatedBoxTemperatures(int start, int stop, int step)
 {
-   REINTERPRET(threadId, args, int *);
-
-	// block distribution
-	int boxesPerThread = numBoxes / numThreads;
-	int start = (*threadId) * boxesPerThread;
-	int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
-	
 	uint32_t i;
    for(i = start; i < end; i++)
    {
@@ -122,8 +130,6 @@ static void * CalculateUpdatedBoxTemperatures(void *args)
 			Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
       }
    }
-
-   pthread_exit(NULL);
 }
 
 static void CommitUpdatedBoxTemperaturesAndFindMinMax()
@@ -165,39 +171,55 @@ int main(int argc, char *argv[])
    Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
-   pthread_t threads[numThreads];
-      
-	ReadInputGrid();
+   pthread_barrier_init(&barrier, NULL, numThreads + 1);
+
+   ReadInputGrid();
 
    StartTimers();
 
+   // Create persistent threads
+   pthread_t threads[numThreads];
    int i;
    for(i = 0; i < numThreads; i++)
    {
-      int *localThreadId = malloc(sizeof(int));
+      int *threadId = malloc(sizeof(int));
       *threadId = i;
-      pthread_create(&threads[i], NULL, ___, (void *)localThreadId);
+      pthread_create(&threads[i], NULL, ThreadSafeConvergenceLoop, (void *)threadId);
    }
 
-   // Convergence loop
-   bool hasConverged = false;
+   // Main thread convergence loop
 	for(numIterations = 0; !hasConverged; numIterations++)
    {
-   	CalculateUpdatedBoxTemperatures(
+      pthread_barrier_wait(&barrier);  // wait for CalculateUpdatedBoxTemperatures
+      pthread_barrier_destroy(&barrier);
+      pthread_barrier_init(&barrier, NULL, numThreads + 1);
+
       CommitUpdatedBoxTemperaturesAndFindMinMax();
-      
-      // pthread_barrier_wait
+
+      pthread_barrier_wait(&barrier);  // wait for CommitUpdatedBoxTemperaturesAndFindMinMax
+      pthread_barrier_destroy(&barrier);
+      pthread_barrier_init(&barrier, NULL, numThreads + 1); // reinit barrier
+
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+
+      pthread_barrier_wait(&barrier);  // wait for hasConverged
+      pthread_barrier_destroy(&barrier);
+
+      if(!hasConverged)
+      {
+         pthread_barrier_init(&barrier, NULL, numThreads + 1);
+      }
    }
-   
+
+   StopTimers();
+   DisplayStats();
+
+   // Destroy barrier and persistent threads
    for(i = 0; i < numThreads; i++)
    {
       void *threadStatus;
       pthread_join(threads[i], &threadStatus);
    }
-
-   StopTimers();
-   DisplayStats();
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);
