@@ -33,14 +33,14 @@ temperature dissipation converged in 43234 iterations
     Num boxes = 12206;	Num rows = 400;	Num columns = 400
 
 elaspsed convergence loop time:
-    using clock():          295010000 clicks (295.009979 s)
-    using time():           297 s
-    using clock_gettime():  296167.000 ms
+    using clock():          376680000 clicks (376.679993 s)
+    using time():           378 s
+    using clock_gettime():  378039.000 ms
 ********************************************************************************
 
-real	4m56.269s
-user	4m55.013s
-sys	0m0.101s
+real	6m18.146s
+user	6m16.561s
+sys	0m0.220s
 
 
 DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE DISPOSABLE 
