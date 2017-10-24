@@ -96,15 +96,15 @@ static void ReadInputGrid()
 
 static void * CalculateUpdatedBoxTemperatures(int start, int end)
 {
-	uint32_t i;
+   uint32_t i;
    for(i = start; i < end; i++)
    {
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
       {
          double updatedTemperature;
-			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
-			Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
+		   DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
+		   Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
       }
    }
 }
