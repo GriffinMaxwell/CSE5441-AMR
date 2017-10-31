@@ -127,12 +127,12 @@ static void FindMinMax()
    double updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, 0);
    minTemperature = updatedTemperature;
    maxTemperature = updatedTemperature;
-	
+
    uint32_t i;
    for(i = 1; i < numBoxes; i++)
    {
          updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, i);
-         
+
          minTemperature = MIN(minTemperature, updatedTemperature);
          maxTemperature = MAX(maxTemperature, updatedTemperature);
    }
@@ -152,14 +152,14 @@ static void * ThreadSafeConvergenceLoop(void *args)
 
       CalculateUpdatedBoxTemperatures(start, end);
       pthread_barrier_wait(&barrierCalculate);
-      
+
       CommitUpdatedBoxTemperatures(start, end);
       pthread_barrier_wait(&barrierCommit);
-      
+
       // Wait for main thread to update convergence condition
       pthread_barrier_wait(&barrierConverged);
    }
-   
+
    free(threadId);
    pthread_exit(NULL);
 }
@@ -201,13 +201,14 @@ int main(int argc, char *argv[])
       *threadId = i;
       pthread_create(&threads[i], NULL, ThreadSafeConvergenceLoop, (void *)threadId);
    }
-
+   // Parallelize this whole convergence loop
+   // {
    // Main thread convergence loop
 	for(numIterations = 0; !hasConverged; numIterations++)
    {
       pthread_barrier_init(&barrierCommit, NULL, numThreads + 1);
       pthread_barrier_init(&barrierConverged, NULL, numThreads + 1);
-         
+
       pthread_barrier_wait(&barrierCalculate);
       pthread_barrier_destroy(&barrierCalculate);
 
@@ -217,15 +218,16 @@ int main(int argc, char *argv[])
       pthread_barrier_destroy(&barrierCommit);
 
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
-      
+
       if(!hasConverged)
       {
          pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
       }
-      
+
       pthread_barrier_wait(&barrierConverged);
       pthread_barrier_destroy(&barrierConverged);
    }
+   // }
 
    StopTimers();
    DisplayStats();

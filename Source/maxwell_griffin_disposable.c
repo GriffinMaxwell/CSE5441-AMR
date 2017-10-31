@@ -99,7 +99,7 @@ static void * ThreadSafeCalculateUpdatedBoxTemperatures(void *args)
 	int boxesPerThread = numBoxes / numThreads;
 	int start = (*threadId) * boxesPerThread;
 	int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
-	
+
 	uint32_t i;
    for(i = start; i < end; i++)
    {
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
    if (argc < 4)
    {
       printf("Error: Not enough arguments.\n");
-      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS\n");
+      printf("Should be: AFFECT_RATE EPSILON NUM_REQUESTED_THREADS\n");
       return 0;
    }
 
@@ -164,9 +164,8 @@ int main(int argc, char *argv[])
    bool hasConverged = false;
 	for(numIterations = 0; !hasConverged; numIterations++)
    {
-      int *threadId;
-      pthread_t threads[numThreads];
-
+      // Parallelize this region
+      // {
       int i;
       for(i = 0; i < numThreads; i++)
       {
@@ -179,7 +178,7 @@ int main(int argc, char *argv[])
          void *threadStatus;
          pthread_join(threads[i], &threadStatus);
       }
-
+      // }
       CommitUpdatedBoxTemperaturesAndFindMinMax();
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
    }
