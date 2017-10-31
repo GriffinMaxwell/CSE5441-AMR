@@ -166,19 +166,9 @@ int main(int argc, char *argv[])
    {
       // Parallelize this region
       // {
-      int i;
-      for(i = 0; i < numThreads; i++)
-      {
-         threadId = malloc(sizeof(int));
-         *threadId = i;
-         pthread_create(&threads[i], NULL, ThreadSafeCalculateUpdatedBoxTemperatures, (void *)threadId);
-      }
-      for(i = 0; i < numThreads; i++)
-      {
-         void *threadStatus;
-         pthread_join(threads[i], &threadStatus);
-      }
+      //    CalculateUpdatedBoxTemperatures
       // }
+
       CommitUpdatedBoxTemperaturesAndFindMinMax();
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
    }

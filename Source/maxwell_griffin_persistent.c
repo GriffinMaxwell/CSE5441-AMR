@@ -203,29 +203,13 @@ int main(int argc, char *argv[])
    }
    // Parallelize this whole convergence loop
    // {
-   // Main thread convergence loop
-	for(numIterations = 0; !hasConverged; numIterations++)
+   // Fix this for loop so that hasConverged is atomic?
+   for(numIterations = 0; !hasConverged; numIterations++)
    {
-      pthread_barrier_init(&barrierCommit, NULL, numThreads + 1);
-      pthread_barrier_init(&barrierConverged, NULL, numThreads + 1);
-
-      pthread_barrier_wait(&barrierCalculate);
-      pthread_barrier_destroy(&barrierCalculate);
-
+      //    CalculateUpdatedBoxTemperatures
       FindMinMax();
 
-      pthread_barrier_wait(&barrierCommit);
-      pthread_barrier_destroy(&barrierCommit);
-
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
-
-      if(!hasConverged)
-      {
-         pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
-      }
-
-      pthread_barrier_wait(&barrierConverged);
-      pthread_barrier_destroy(&barrierConverged);
    }
    // }
 
