@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <pthread.h>
+#include <omp.h>
 #include "Map_Box.h"
 #include "Map_Double.h"
 #include "FormattedReader_Box.h"
@@ -173,11 +173,7 @@ int main(int argc, char *argv[])
       // }
 
       CommitUpdatedBoxTemperaturesAndFindMinMax();
-
-      // omp only one thread should run this
-      // {
-         hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
-      // }
+      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
    }
 
    StopTimers();

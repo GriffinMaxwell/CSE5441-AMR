@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <pthread.h>
+#include <omp.h>
 #include "Map_Box.h"
 #include "Map_Double.h"
 #include "FormattedReader_Box.h"

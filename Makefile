@@ -11,7 +11,7 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS := -O3 -lrt -pthread
+CFLAGS := -O3 -lrt -fopenmp
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 all: $(TARGET_EXEC_1) $(TARGET_EXEC_2)
@@ -55,10 +55,10 @@ package:
 	@cp submit.mk cse5441_lab2
 	@mv cse5441_lab2/submit.mk cse5441_lab2/Makefile
 #	@cp Documentation/report2.pdf cse5441_lab2/report.pdf
-	
+
 #disposable:
 
-#persistent:	
+#persistent:
 
 -include $(DEPS)
 
