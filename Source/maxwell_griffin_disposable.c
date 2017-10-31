@@ -147,8 +147,6 @@ int main(int argc, char *argv[])
    sscanf(argv[2], "%lf", &epsilon);
    sscanf(argv[3], "%d", &numThreads);
 
-   // Set number of threads (or just have clause in parallel region?)
-
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
