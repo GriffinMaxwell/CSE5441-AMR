@@ -147,6 +147,8 @@ int main(int argc, char *argv[])
    sscanf(argv[2], "%lf", &epsilon);
    sscanf(argv[3], "%d", &numThreads);
 
+   // Set number of threads (or just have clause in parallel region?)
+
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
@@ -164,13 +166,18 @@ int main(int argc, char *argv[])
    bool hasConverged = false;
 	for(numIterations = 0; !hasConverged; numIterations++)
    {
-      // Parallelize this region
+      // Parallelize this region (request # threads)
       // {
+      //    Store actual number of threads
       //    CalculateUpdatedBoxTemperatures
       // }
 
       CommitUpdatedBoxTemperaturesAndFindMinMax();
-      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+
+      // omp only one thread should run this
+      // {
+         hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+      // }
    }
 
    StopTimers();

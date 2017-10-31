@@ -178,6 +178,8 @@ int main(int argc, char *argv[])
    sscanf(argv[2], "%lf", &epsilon);
    sscanf(argv[3], "%d", &numThreads);
 
+   // Set number of threads (or just have clause in parallel region?)
+
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
@@ -186,30 +188,28 @@ int main(int argc, char *argv[])
    Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
-   pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
 
    ReadInputGrid();
 
    StartTimers();
 
-   // Create persistent threads
-   pthread_t threads[numThreads];
-   int i;
-   for(i = 0; i < numThreads; i++)
-   {
-      int *threadId = malloc(sizeof(int));
-      *threadId = i;
-      pthread_create(&threads[i], NULL, ThreadSafeConvergenceLoop, (void *)threadId);
-   }
-   // Parallelize this whole convergence loop
+   // Parallelize this whole convergence loop (request # threads? other clauses?)
    // {
    // Fix this for loop so that hasConverged is atomic?
    for(numIterations = 0; !hasConverged; numIterations++)
    {
-      //    CalculateUpdatedBoxTemperatures
-      FindMinMax();
+      // Store actual number of threads
+      // CalculateUpdatedBoxTemperatures
 
-      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+      // Barrier
+      // CommitUpdatedBoxTemperatures
+      // Barrier
+
+      // omp only one thread should run this
+      // {
+         FindMinMax();
+         hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+      // }
    }
    // }
 
