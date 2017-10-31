@@ -11,19 +11,18 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-LINKFLAGS := -O3 -lrt -pthread
-CFLAGS := -O3
+CFLAGS := -O3 -lrt -pthread
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 all: $(TARGET_EXEC_1) $(TARGET_EXEC_2)
 
 $(TARGET_EXEC_1): $(OBJS)
 	$(CC) -c -o $(BUILD_DIR)/maxwell_griffin_disposable.o Source/maxwell_griffin_disposable.c $(CFLAGS)
-	$(CC) $(BUILD_DIR)/maxwell_griffin_disposable.o $(OBJS) $(LINKFLAGS) -o $@ $(LDFLAGS)
+	$(CC) $(BUILD_DIR)/maxwell_griffin_disposable.o $(OBJS) $(CFLAGS) -o $@ $(LDFLAGS)
 
 $(TARGET_EXEC_2): $(OBJS)
 	$(CC) -c -o $(BUILD_DIR)/maxwell_griffin_persistent.o Source/maxwell_griffin_persistent.c $(CFLAGS)
-	$(CC) $(BUILD_DIR)/maxwell_griffin_persistent.o $(OBJS) $(LINKFLAGS) -o $@ $(LDFLAGS)
+	$(CC) $(BUILD_DIR)/maxwell_griffin_persistent.o $(OBJS) $(CFLAGS) -o $@ $(LDFLAGS)
 
 # assembly
 $(BUILD_DIR)/%.s.o: %.s
