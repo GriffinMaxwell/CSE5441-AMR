@@ -1,6 +1,5 @@
 CC=gcc
-LINKFLAGS := -lrt -pthread
-CFLAGS := -O3
+CFLAGS := -O3 -lrt -pthread
 DEPS := \
 	Box.h \
 	DsvUpdater_BoxTemperature.h \
@@ -28,11 +27,11 @@ all: disposable persistent
 
 disposable: maxwell_griffin_disposable.o $(OBJ) 
 	$(CC) -c -o maxwell_griffin_disposable.o maxwell_griffin_disposable.c $(CFLAGS)
-	$(CC) -o $@ $^ $(CFLAGS) $(LINKFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 	
 persistent: maxwell_griffin_persistent.o $(OBJ) 
 	$(CC) -c -o maxwell_griffin_persistent.o maxwell_griffin_persistent.c $(CFLAGS)
-	$(CC) -o $@ $^ $(CFLAGS) $(LINKFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 	
 .PHONY: clean
 clean:
