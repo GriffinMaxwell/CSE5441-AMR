@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <pthread.h>
+#include <omp.h>
 #include "Map_Box.h"
 #include "Map_Double.h"
 #include "FormattedReader_Box.h"
@@ -99,7 +99,7 @@ static void * ThreadSafeCalculateUpdatedBoxTemperatures(void *args)
 	int boxesPerThread = numBoxes / numThreads;
 	int start = (*threadId) * boxesPerThread;
 	int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
-	
+
 	uint32_t i;
    for(i = start; i < end; i++)
    {
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
    if (argc < 4)
    {
       printf("Error: Not enough arguments.\n");
-      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS\n");
+      printf("Should be: AFFECT_RATE EPSILON NUM_REQUESTED_THREADS\n");
       return 0;
    }
 
@@ -164,21 +164,11 @@ int main(int argc, char *argv[])
    bool hasConverged = false;
 	for(numIterations = 0; !hasConverged; numIterations++)
    {
-      int *threadId;
-      pthread_t threads[numThreads];
-
-      int i;
-      for(i = 0; i < numThreads; i++)
-      {
-         threadId = malloc(sizeof(int));
-         *threadId = i;
-         pthread_create(&threads[i], NULL, ThreadSafeCalculateUpdatedBoxTemperatures, (void *)threadId);
-      }
-      for(i = 0; i < numThreads; i++)
-      {
-         void *threadStatus;
-         pthread_join(threads[i], &threadStatus);
-      }
+      // Parallelize this region (request # threads)
+      // {
+      //    Store actual number of threads
+      //    CalculateUpdatedBoxTemperatures
+      // }
 
       CommitUpdatedBoxTemperaturesAndFindMinMax();
       hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);

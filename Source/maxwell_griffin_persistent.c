@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <pthread.h>
+#include <omp.h>
 #include "Map_Box.h"
 #include "Map_Double.h"
 #include "FormattedReader_Box.h"
@@ -127,12 +127,12 @@ static void FindMinMax()
    double updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, 0);
    minTemperature = updatedTemperature;
    maxTemperature = updatedTemperature;
-	
+
    uint32_t i;
    for(i = 1; i < numBoxes; i++)
    {
          updatedTemperature = *(double *)Map_Find(&mapIdToUpdatedTemperature.interface, i);
-         
+
          minTemperature = MIN(minTemperature, updatedTemperature);
          maxTemperature = MAX(maxTemperature, updatedTemperature);
    }
@@ -152,14 +152,14 @@ static void * ThreadSafeConvergenceLoop(void *args)
 
       CalculateUpdatedBoxTemperatures(start, end);
       pthread_barrier_wait(&barrierCalculate);
-      
+
       CommitUpdatedBoxTemperatures(start, end);
       pthread_barrier_wait(&barrierCommit);
-      
+
       // Wait for main thread to update convergence condition
       pthread_barrier_wait(&barrierConverged);
    }
-   
+
    free(threadId);
    pthread_exit(NULL);
 }
@@ -186,46 +186,30 @@ int main(int argc, char *argv[])
    Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
-   pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
 
    ReadInputGrid();
 
    StartTimers();
 
-   // Create persistent threads
-   pthread_t threads[numThreads];
-   int i;
-   for(i = 0; i < numThreads; i++)
+   // Parallelize this whole convergence loop (request # threads? other clauses?)
+   // {
+   // Fix this for loop so that hasConverged is atomic?
+   for(numIterations = 0; !hasConverged; numIterations++)
    {
-      int *threadId = malloc(sizeof(int));
-      *threadId = i;
-      pthread_create(&threads[i], NULL, ThreadSafeConvergenceLoop, (void *)threadId);
+      // Store actual number of threads
+      // CalculateUpdatedBoxTemperatures
+
+      // Barrier
+      // CommitUpdatedBoxTemperatures
+      // Barrier
+
+      // omp only one thread should run this
+      // {
+         FindMinMax();
+         hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+      // }
    }
-
-   // Main thread convergence loop
-	for(numIterations = 0; !hasConverged; numIterations++)
-   {
-      pthread_barrier_init(&barrierCommit, NULL, numThreads + 1);
-      pthread_barrier_init(&barrierConverged, NULL, numThreads + 1);
-         
-      pthread_barrier_wait(&barrierCalculate);
-      pthread_barrier_destroy(&barrierCalculate);
-
-      FindMinMax();
-
-      pthread_barrier_wait(&barrierCommit);
-      pthread_barrier_destroy(&barrierCommit);
-
-      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
-      
-      if(!hasConverged)
-      {
-         pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
-      }
-      
-      pthread_barrier_wait(&barrierConverged);
-      pthread_barrier_destroy(&barrierConverged);
-   }
+   // }
 
    StopTimers();
    DisplayStats();

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS := -O3 -lrt -pthread
+CFLAGS := -O3 -lrt -fopenmp
 DEPS := \
 	Box.h \
 	DsvUpdater_BoxTemperature.h \
@@ -25,14 +25,14 @@ OBJ = \
 
 all: disposable persistent
 
-disposable: maxwell_griffin_disposable.o $(OBJ) 
+disposable: maxwell_griffin_disposable.o $(OBJ)
 	$(CC) -c -o maxwell_griffin_disposable.o maxwell_griffin_disposable.c $(CFLAGS)
 	$(CC) -o $@ $^ $(CFLAGS)
-	
-persistent: maxwell_griffin_persistent.o $(OBJ) 
+
+persistent: maxwell_griffin_persistent.o $(OBJ)
 	$(CC) -c -o maxwell_griffin_persistent.o maxwell_griffin_persistent.c $(CFLAGS)
 	$(CC) -o $@ $^ $(CFLAGS)
-	
+
 .PHONY: clean
 clean:
 	@echo Cleaning build files...
