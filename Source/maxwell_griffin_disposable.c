@@ -86,7 +86,8 @@ static void DisplayStats()
 
 static void ReadInputGrid()
 {
-   for(int i = 0; i < numBoxes; i++)
+   int i;
+   for(i = 0; i < numBoxes; i++)
    {
       int id;
       fscanf(stdin, "%d", &id);
@@ -104,11 +105,12 @@ static void CalculateBlockOfBoxTemperatures(int threadId, int numThreads)
 	int boxesPerThread = numBoxes / numThreads;
 	int start = threadId * boxesPerThread;
 	int end =  // gives leftover boxes to the last thread
-      (threadId == numRequestedThreads - 1)
+      (threadId == numActualThreads - 1)
       ? numBoxes
       : start + boxesPerThread;
-
-   for(int i = start; i < end; i++)
+   
+   int i;
+   for(i = start; i < end; i++)
    {
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
@@ -122,7 +124,8 @@ static void CalculateBlockOfBoxTemperatures(int threadId, int numThreads)
 
 static void CommitBoxTemperaturesAndFindMinMax()
 {
-   for(int i = 0; i < numBoxes; i++)
+   int i;
+   for(i = 0; i < numBoxes; i++)
    {
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
@@ -166,7 +169,7 @@ int main(int argc, char *argv[])
    // Convergence loop
    bool hasConverged = false;
 	for(numIterations = 0; !hasConverged; numIterations++)
-   {
+   {         
       #pragma omp parallel num_threads(numRequestedThreads)
       {
          numActualThreads = omp_get_num_threads();
