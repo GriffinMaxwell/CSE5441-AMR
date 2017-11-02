@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <pthread.h>
+#include <omp.h>
 #include "Map_Box.h"
 #include "Map_Double.h"
 #include "FormattedReader_Box.h"
@@ -16,20 +16,25 @@
 #define MS_PER_SEC (1000)
 #define NS_PER_MS (1000000)
 
+// Objects
 static Map_Box_t mapIdToBox;
 static Map_Double_t mapIdToUpdatedTemperature;
 static FormattedReader_Box_t boxReader;
 static DsvUpdater_BoxTemperature_t dsvUpdater;
 
+// User args and OpenMP actual threads
 static double affectRate;
 static double epsilon;
-static int numThreads;
+static int numRequestedThreads;
+static int numActualThreads;
 
+// Box dimensions
 static uint32_t numBoxes;
 static uint32_t numGridRows;
 static uint32_t numGridCols;
 static uint32_t numIterations;
 
+// Timing variables
 static clock_t clockStart;
 static clock_t clockEnd;
 static time_t timeStart;
@@ -37,11 +42,9 @@ static time_t timeEnd;
 static struct timespec rtcStart;
 static struct timespec rtcEnd;
 
+// Min Max Temperatures
 static double minTemperature;
 static double maxTemperature;
-
-static bool hasConverged = false;
-static pthread_barrier_t barrierCalculate, barrierCommit, barrierConverged;
 
 static inline void StartTimers()
 {
@@ -61,11 +64,13 @@ static void DisplayStats()
 {
    printf("\n");
    printf("********************************************************************************\n");
+   printf("Using \"persistent\" threading with OpenMP:\n");
    printf("temperature dissipation converged in %d iterations\n", numIterations);
-   printf("    with number of (disposable) pthreads = %d\n", numThreads);
-   printf("    with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
-   printf("    AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
-   printf("    Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
+   printf(" -  with requested number of threads = %d\n", numRequestedThreads);
+   printf(" -  with actual number of threads = %d\n", numActualThreads);
+   printf(" -  with max DSV = %lf and min DSV = %lf\n", maxTemperature, minTemperature);
+   printf(" -  AFFECT_RATE = %lf;\tEPSILON = %lf\n", affectRate, epsilon);
+   printf(" -  Num boxes = %d;\tNum rows = %d;\tNum columns = %d\n", numBoxes, numGridRows, numGridCols);
    printf("\n");
 
    printf("elaspsed convergence loop time:\n");
@@ -81,7 +86,7 @@ static void DisplayStats()
 
 static void ReadInputGrid()
 {
-   uint32_t i;
+   int i;
    for(i = 0; i < numBoxes; i++)
    {
       int id;
@@ -94,24 +99,24 @@ static void ReadInputGrid()
    }
 }
 
-static void * CalculateUpdatedBoxTemperatures(int start, int end)
+static void CalculateBlockOfBoxTemperatures(int start, int end)
 {
-   uint32_t i;
+   int i;
    for(i = start; i < end; i++)
    {
       Box_t *box = Map_Find(&mapIdToBox.interface, i);
       if(NULL != box)
       {
          double updatedTemperature;
-		   DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
-		   Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
+			DsvUpdater_Calculate(&dsvUpdater.interface, box, &updatedTemperature);
+			Map_Add(&mapIdToUpdatedTemperature.interface, i, &updatedTemperature);
       }
    }
 }
 
-static void CommitUpdatedBoxTemperatures(int start, int end)
+static void CommitBlockOfBoxTemperatures(int start, int end)
 {
-   uint32_t i;
+   int i;
    for(i = start; i < end; i++)
    {
       DsvUpdater_Commit(
@@ -138,104 +143,69 @@ static void FindMinMax()
    }
 }
 
-static void * ThreadSafeConvergenceLoop(void *args)
-{
-   REINTERPRET(threadId, args, int *);
-
-   // Convergence loop
-   while(!hasConverged)
-   {
-      // block distribution
-      int boxesPerThread = numBoxes / numThreads;
-      int start = (*threadId) * boxesPerThread;
-      int end = (*threadId == numThreads - 1) ? numBoxes : start + boxesPerThread;	// gives leftover boxes to the last thread
-
-      CalculateUpdatedBoxTemperatures(start, end);
-      pthread_barrier_wait(&barrierCalculate);
-      
-      CommitUpdatedBoxTemperatures(start, end);
-      pthread_barrier_wait(&barrierCommit);
-      
-      // Wait for main thread to update convergence condition
-      pthread_barrier_wait(&barrierConverged);
-   }
-   
-   free(threadId);
-   pthread_exit(NULL);
-}
-
 int main(int argc, char *argv[])
 {
    if (argc < 4)
    {
       printf("Error: Not enough arguments.\n");
-      printf("Should be: AFFECT_RATE EPSILON NUM_THREADS\n");
+      printf("Should be: AFFECT_RATE EPSILON NUM_REQUESTED_THREADS\n");
       return 0;
    }
 
    // Parse command line args
    sscanf(argv[1], "%lf", &affectRate);
    sscanf(argv[2], "%lf", &epsilon);
-   sscanf(argv[3], "%d", &numThreads);
+   sscanf(argv[3], "%d", &numRequestedThreads);
 
    // Read first line of stdin for number of boxes and grid dimensions
    fscanf(stdin, "%d %d %d", &numBoxes, &numGridRows, &numGridCols);
 
    // Initialize objects
-   Map_Box_Init(&mapIdToBox, (uint32_t)numBoxes);
-   Map_Double_Init(&mapIdToUpdatedTemperature, (uint32_t)numBoxes);
+   Map_Box_Init(&mapIdToBox, numBoxes);
+   Map_Double_Init(&mapIdToUpdatedTemperature, numBoxes);
    FormattedReader_Box_Init(&boxReader, stdin);
    DsvUpdater_BoxTemperature_Init(&dsvUpdater, &mapIdToBox, affectRate);
-   pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
 
-   ReadInputGrid();
+	ReadInputGrid();
 
    StartTimers();
 
-   // Create persistent threads
-   pthread_t threads[numThreads];
-   int i;
-   for(i = 0; i < numThreads; i++)
+   // Convergence loop
+   bool hasConverged = false;
+   #pragma omp parallel num_threads(numRequestedThreads)
    {
-      int *threadId = malloc(sizeof(int));
-      *threadId = i;
-      pthread_create(&threads[i], NULL, ThreadSafeConvergenceLoop, (void *)threadId);
-   }
-
-   // Main thread convergence loop
-	for(numIterations = 0; !hasConverged; numIterations++)
-   {
-      pthread_barrier_init(&barrierCommit, NULL, numThreads + 1);
-      pthread_barrier_init(&barrierConverged, NULL, numThreads + 1);
-         
-      pthread_barrier_wait(&barrierCalculate);
-      pthread_barrier_destroy(&barrierCalculate);
-
-      FindMinMax();
-
-      pthread_barrier_wait(&barrierCommit);
-      pthread_barrier_destroy(&barrierCommit);
-
-      hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
-      
-      if(!hasConverged)
+      #pragma omp single
       {
-         pthread_barrier_init(&barrierCalculate, NULL, numThreads + 1);
+         numActualThreads = omp_get_num_threads();
       }
       
-      pthread_barrier_wait(&barrierConverged);
-      pthread_barrier_destroy(&barrierConverged);
+      // block distribution parameters
+	   int boxesPerThread = numBoxes / numActualThreads;
+	   int start = omp_get_thread_num() * boxesPerThread;
+	   int end =  // gives leftover boxes to the last thread
+         (omp_get_thread_num() == numActualThreads - 1)
+         ? numBoxes
+         : start + boxesPerThread;
+         
+	   while(!hasConverged)
+      {	
+         CalculateBlockOfBoxTemperatures(start, end);
+         
+         #pragma omp barrier
+         CommitBlockOfBoxTemperatures(start, end);
+         
+         #pragma omp barrier
+         #pragma omp single
+         {
+            FindMinMax();
+            numIterations++;
+            hasConverged = HAS_CONVERGED(maxTemperature, minTemperature, epsilon);
+         }
+      }
    }
 
    StopTimers();
    DisplayStats();
-
-   // Destroy barrier and persistent threads
-   for(i = 0; i < numThreads; i++)
-   {
-      void *threadStatus;
-      pthread_join(threads[i], &threadStatus);
-   }
 
    // Deinitialize objects
    Map_Box_Deinit(&mapIdToBox);

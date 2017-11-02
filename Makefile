@@ -11,7 +11,7 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS := -O3 -lrt -pthread
+CFLAGS := -O3 -lrt -fopenmp
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 all: $(TARGET_EXEC_1) $(TARGET_EXEC_2)
@@ -50,15 +50,10 @@ clean:
 
 package:
 	@echo "Packaging up project for submission..."
-	@mkdir -p cse5441_lab2
-	@cp Source/*.c Source/*.h cse5441_lab2
-	@cp submit.mk cse5441_lab2
-	@mv cse5441_lab2/submit.mk cse5441_lab2/Makefile
-#	@cp Documentation/report2.pdf cse5441_lab2/report.pdf
-	
-#disposable:
-
-#persistent:	
+	@mkdir -p cse5441_lab3
+	@cp Source/*.c Source/*.h cse5441_lab3
+	@cp submit.mk cse5441_lab3
+	@mv cse5441_lab3/submit.mk cse5441_lab3/Makefile
 
 -include $(DEPS)
 

@@ -1,0 +1,390 @@
+DISPOSABLE PTHREADS DISPOSABLE PTHREADS DISPOSABLE PTHREADS DISPOSABLE PTHREADS 
+2 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time disposable 0.05 0.05 2 </class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 2
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          300230000 clicks (300.230011 s)
+    using time():           222 s
+    using clock_gettime():  222489.000 ms
+********************************************************************************
+
+real	3m42.516s
+user	4m50.271s
+sys	0m9.989s
+
+4 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time disposable 0.05 0.05 4 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 4
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          308960000 clicks (308.959991 s)
+    using time():           335 s
+    using clock_gettime():  335002.000 ms
+********************************************************************************
+
+real	5m35.029s
+user	4m50.487s
+sys	0m18.491s
+
+8 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time disposable 0.05 0.05 8 </class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 8
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          353130000 clicks (353.129974 s)
+    using time():           174 s
+    using clock_gettime():  174203.000 ms
+********************************************************************************
+
+real	2m54.227s
+user	5m11.023s
+sys	0m42.121s
+
+16 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time disposable 0.05 0.05 16 </class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 16
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          470960000 clicks (470.959991 s)
+    using time():           225 s
+    using clock_gettime():  225207.000 ms
+********************************************************************************
+
+real	3m45.234s
+user	5m36.238s
+sys	2m14.747s
+
+32 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time disposable 0.05 0.05 32 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 32
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          669500000 clicks (669.500061 s)
+    using time():           397 s
+    using clock_gettime():  397607.000 ms
+********************************************************************************
+
+real	6m37.630s
+user	6m20.501s
+sys	4m49.017s
+
+
+PERSISTENT PTHREADS PERSISTENT PTHREADS PERSISTENT PTHREADS PERSISTENT PTHREADS 
+2 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time persistent 0.05 0.05 2 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 2
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          261050000 clicks (261.049988 s)
+    using time():           158 s
+    using clock_gettime():  157999.000 ms
+********************************************************************************
+
+real	2m38.022s
+user	4m14.915s
+sys	0m6.159s
+
+4 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time persistent 0.05 0.05 4 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 4
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          271590000 clicks (271.590027 s)
+    using time():           129 s
+    using clock_gettime():  129280.000 ms
+********************************************************************************
+
+real	2m9.307s
+user	4m22.775s
+sys	0m8.836s
+
+8 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time persistent 0.05 0.05 8 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 8
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          289570000 clicks (289.569977 s)
+    using time():           114 s
+    using clock_gettime():  113361.000 ms
+********************************************************************************
+
+real	1m53.387s
+user	4m36.405s
+sys	0m13.184s
+
+
+16 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time persistent 0.05 0.05 16 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 16
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          302870000 clicks (302.870026 s)
+    using time():           196 s
+    using clock_gettime():  195925.000 ms
+********************************************************************************
+
+real	3m15.952s
+user	4m44.055s
+sys	0m18.836s
+
+32 threads:
+[maxwell.362@sl1 cse5441_lab2]$ time persistent 0.05 0.05 32 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+temperature dissipation converged in 197312 iterations
+    with number of (disposable) pthreads = 32
+    with max DSV = 0.085244 and min DSV = 0.080982
+    AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+    Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          322980000 clicks (322.980011 s)
+    using time():           248 s
+    using clock_gettime():  248658.000 ms
+********************************************************************************
+
+real	4m8.685s
+user	4m53.761s
+sys	0m29.237s
+
+
+DISPOSABLE OPENMP DISPOSABLE OPENMP DISPOSABLE OPENMP DISPOSABLE OPENMP 
+2 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time disposable 0.05 0.05 2 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "disposable" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 2
+ -  with actual number of threads = 2
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          335400000 clicks (335.399994 s)
+    using time():           180 s
+    using clock_gettime():  179468.000 ms
+********************************************************************************
+
+real	2m59.492s
+user	5m34.289s
+sys	0m1.136s
+
+4 threads:
+
+8 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time disposable 0.05 0.05 8 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "disposable" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 8
+ -  with actual number of threads = 8
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          283280000 clicks (283.279999 s)
+    using time():           182 s
+    using clock_gettime():  182345.000 ms
+********************************************************************************
+
+real	3m2.371s
+user	4m35.736s
+sys	0m7.566s
+
+16 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time disposable 0.05 0.05 16 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "disposable" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 16
+ -  with actual number of threads = 16
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          274540000 clicks (274.540009 s)
+    using time():           241 s
+    using clock_gettime():  241395.000 ms
+********************************************************************************
+
+real	4m1.445s
+user	4m25.052s
+sys	0m9.509s
+
+32 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time disposable 0.05 0.05 32 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "disposable" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 32
+ -  with actual number of threads = 32
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          308230000 clicks (308.230011 s)
+    using time():           243 s
+    using clock_gettime():  242234.000 ms
+********************************************************************************
+
+real	4m2.268s
+user	4m49.392s
+sys	0m18.852s
+
+
+PERSISTENT OPENMP PERSISTENT OPENMP PERSISTENT OPENMP PERSISTENT OPENMP 
+2 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time persistent 0.05 0.05 2 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "persistent" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 2
+ -  with actual number of threads = 2
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          303900000 clicks (303.899994 s)
+    using time():           182 s
+    using clock_gettime():  181779.000 ms
+********************************************************************************
+
+real	3m1.809s
+user	5m3.126s
+sys	0m0.799s
+
+4 threads:
+
+8 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time persistent 0.05 0.05 8 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "persistent" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 8
+ -  with actual number of threads = 8
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          283010000 clicks (283.009979 s)
+    using time():           149 s
+    using clock_gettime():  148991.000 ms
+********************************************************************************
+
+real	2m29.017s
+user	4m32.167s
+sys	0m10.862s
+
+16 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time persistent 0.05 0.05 16 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "persistent" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 16
+ -  with actual number of threads = 16
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          312590000 clicks (312.590027 s)
+    using time():           144 s
+    using clock_gettime():  143142.000 ms
+********************************************************************************
+
+real	2m23.171s
+user	4m54.650s
+sys	0m17.965s
+
+32 threads:
+[maxwell.362@sl1 cse5441_lab3]$ time persistent 0.05 0.05 32 < /class/cse5441/testgrid_400_12206 
+
+********************************************************************************
+Using "persistent" threading with OpenMP:
+temperature dissipation converged in 197312 iterations
+ -  with requested number of threads = 32
+ -  with actual number of threads = 32
+ -  with max DSV = 0.085244 and min DSV = 0.080982
+ -  AFFECT_RATE = 0.050000;	EPSILON = 0.050000
+ -  Num boxes = 12206;	Num rows = 400;	Num columns = 400
+
+elaspsed convergence loop time:
+    using clock():          357230000 clicks (357.230011 s)
+    using time():           166 s
+    using clock_gettime():  165913.000 ms
+********************************************************************************
+
+real	2m45.938s
+user	5m25.092s
+sys	0m32.162s
+
+
+
