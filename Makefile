@@ -50,15 +50,10 @@ clean:
 
 package:
 	@echo "Packaging up project for submission..."
-	@mkdir -p cse5441_lab2
-	@cp Source/*.c Source/*.h cse5441_lab2
-	@cp submit.mk cse5441_lab2
-	@mv cse5441_lab2/submit.mk cse5441_lab2/Makefile
-#	@cp Documentation/report2.pdf cse5441_lab2/report.pdf
-
-#disposable:
-
-#persistent:
+	@mkdir -p cse5441_lab3
+	@cp Source/*.c Source/*.h cse5441_lab3
+	@cp submit.mk cse5441_lab3
+	@mv cse5441_lab3/submit.mk cse5441_lab3/Makefile
 
 -include $(DEPS)
 
