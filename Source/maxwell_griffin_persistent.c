@@ -64,7 +64,7 @@ static void DisplayStats()
 {
    printf("\n");
    printf("********************************************************************************\n");
-   printf("Using \"disposable\" threading with OpenMP:\n");
+   printf("Using \"persistent\" threading with OpenMP:\n");
    printf("temperature dissipation converged in %d iterations\n", numIterations);
    printf(" -  with requested number of threads = %d\n", numRequestedThreads);
    printf(" -  with actual number of threads = %d\n", numActualThreads);
